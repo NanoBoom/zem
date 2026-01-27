@@ -1,0 +1,191 @@
+# Display help message
+
+.zem_help() {
+    emulate -L zsh
+
+    local command=$1
+
+    if [[ -n $command ]]; then
+        # Show help for specific command
+        case $command in
+            add)
+                cat <<'EOF'
+Usage: zem add <profile> <key> <value>
+
+Add an environment variable to a profile.
+
+Arguments:
+  profile    Name of the profile
+  key        Variable name (must be valid shell identifier)
+  value      Variable value
+
+Example:
+  zem add work API_KEY "sk-123456"
+  zem add dev DATABASE_URL "postgres://localhost/mydb"
+EOF
+                ;;
+            load)
+                cat <<'EOF'
+Usage: zem load <profile>
+
+Load a profile into the current shell session.
+
+Arguments:
+  profile    Name of the profile to load
+
+Example:
+  zem load work
+
+Note:
+  Set ZEM_CONFIRM_LOAD=1 to enable confirmation prompt before loading.
+EOF
+                ;;
+            unload)
+                cat <<'EOF'
+Usage: zem unload <profile>
+
+Unload a profile from the current shell session.
+This will unset all environment variables defined in the profile.
+
+Arguments:
+  profile    Name of the profile to unload
+
+Example:
+  zem unload work
+EOF
+                ;;
+            list|ls)
+                cat <<'EOF'
+Usage: zem list
+
+List all available profiles.
+
+Aliases: ls
+
+Example:
+  zem list
+  zem ls
+EOF
+                ;;
+            rm|remove|delete)
+                cat <<'EOF'
+Usage: zem rm <profile>
+
+Remove a profile permanently.
+
+Arguments:
+  profile    Name of the profile to remove
+
+Aliases: remove, delete
+
+Example:
+  zem rm old-project
+EOF
+                ;;
+            edit)
+                cat <<'EOF'
+Usage: zem edit <profile>
+
+Edit a profile with your default editor ($EDITOR).
+If the profile doesn't exist, it will be created.
+
+Arguments:
+  profile    Name of the profile to edit
+
+Example:
+  zem edit work
+EOF
+                ;;
+            show|cat|view)
+                cat <<'EOF'
+Usage: zem show <profile>
+
+Display the contents of a profile.
+
+Arguments:
+  profile    Name of the profile to show
+
+Aliases: cat, view
+
+Example:
+  zem show work
+EOF
+                ;;
+            export)
+                cat <<'EOF'
+Usage: zem export <profile> [output-file]
+
+Export a profile to a file.
+
+Arguments:
+  profile       Name of the profile to export
+  output-file   Output file path (default: <profile>.env)
+
+Example:
+  zem export work
+  zem export work ~/backup/work.env
+EOF
+                ;;
+            import)
+                cat <<'EOF'
+Usage: zem import <file> <profile>
+
+Import a file as a profile.
+
+Arguments:
+  file       Path to the file to import
+  profile    Name for the new profile
+
+Example:
+  zem import ~/backup/work.env work
+  zem import .env.example dev
+EOF
+                ;;
+            *)
+                echo "❌ Unknown command: $command"
+                echo "Run 'zem help' to see all available commands."
+                return 1
+                ;;
+        esac
+    else
+        # Show general help
+        cat <<'EOF'
+🌟 Zsh Environment Manager (zem)
+
+Manage environment variable profiles for different projects and contexts.
+
+Usage:
+  zem <command> [arguments]
+
+Commands:
+  add <profile> <key> <value>   Add environment variable to profile
+  load <profile>                Load profile into current session
+  unload <profile>              Unload profile from current session
+  list                          List all profiles
+  rm <profile>                  Remove profile
+  edit <profile>                Edit profile with $EDITOR
+  show <profile>                Display profile content
+  export <profile> [file]       Export profile to file
+  import <file> <profile>       Import file as profile
+  help [command]                Show help message
+
+Examples:
+  zem add work API_KEY "sk-123456"
+  zem load work
+  zem list
+  zem show work
+  zem unload work
+
+Configuration:
+  Profiles are stored in: ${XDG_CONFIG_HOME:-$HOME/.config}/zsh-env-manager/profiles/
+
+Environment Variables:
+  ZEM_CONFIRM_LOAD    Set to 1 to enable confirmation before loading profiles
+
+For more information on a specific command:
+  zem help <command>
+EOF
+    fi
+
+    return 0
+}

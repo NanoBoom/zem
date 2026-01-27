@@ -1,0 +1,46 @@
+# Remove profile
+
+.zem_rm() {
+    emulate -L zsh
+    setopt extended_glob warn_create_global typeset_silent
+
+    local MATCH REPLY
+    integer MBEGIN MEND
+    local -a match mbegin mend reply
+
+    local profile=$1
+    local profile_dir="${XDG_CONFIG_HOME:-$HOME/.config}/zsh-env-manager/profiles"
+    local profile_file="$profile_dir/$profile"
+
+    # Validate arguments
+    if [[ -z $profile ]]; then
+        echo "❌ Missing profile name."
+        echo "Usage: zem rm <profile>"
+        return 1
+    fi
+
+    # Check if profile exists
+    if [[ ! -f $profile_file ]]; then
+        echo "❌ Profile '$profile' does not exist."
+        echo "Run 'zem list' to see available profiles."
+        return 1
+    fi
+
+    # Confirm deletion
+    echo "⚠️  Are you sure you want to delete profile '$profile'?"
+    read "?This action cannot be undone. [y/N] " response
+
+    if [[ ! $response =~ ^[yY]$ ]]; then
+        echo "Cancelled."
+        return 0
+    fi
+
+    # Delete the profile
+    rm -f "$profile_file" || {
+        echo "❌ Failed to delete profile: $profile"
+        return 1
+    }
+
+    echo "🗑️  Profile '$profile' deleted successfully."
+    return 0
+}

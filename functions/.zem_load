@@ -1,0 +1,48 @@
+# Load profile into current session
+
+.zem_load() {
+    emulate -L zsh
+    setopt extended_glob warn_create_global typeset_silent
+
+    local MATCH REPLY
+    integer MBEGIN MEND
+    local -a match mbegin mend reply
+
+    local profile=$1
+    local profile_dir="${XDG_CONFIG_HOME:-$HOME/.config}/zsh-env-manager/profiles"
+    local profile_file="$profile_dir/$profile"
+
+    # Validate arguments
+    if [[ -z $profile ]]; then
+        echo "❌ Missing profile name."
+        echo "Usage: zem load <profile>"
+        return 1
+    fi
+
+    # Check if profile exists
+    if [[ ! -f $profile_file ]]; then
+        echo "❌ Profile '$profile' does not exist."
+        echo "Run 'zem list' to see available profiles."
+        return 1
+    fi
+
+    # Optional: Confirm before loading (controlled by ZEM_CONFIRM_LOAD)
+    if [[ -n $ZEM_CONFIRM_LOAD ]]; then
+        echo "⚠️  Warning: This will execute code from '$profile'"
+        echo "   File: $profile_file"
+        read "?Continue? [y/N] " response
+        if [[ ! $response =~ ^[yY]$ ]]; then
+            echo "Cancelled."
+            return 0
+        fi
+    fi
+
+    # Source the profile
+    source "$profile_file" || {
+        echo "❌ Failed to load profile: $profile"
+        return 1
+    }
+
+    echo "🚀 Profile '$profile' loaded successfully!"
+    return 0
+}

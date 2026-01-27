@@ -1,0 +1,94 @@
+#compdef zem
+
+# Completion function for zsh-env-manager
+
+_zem() {
+    local -a commands profiles
+    local profile_dir="${XDG_CONFIG_HOME:-$HOME/.config}/zsh-env-manager/profiles"
+
+    # Define commands
+    commands=(
+        'add:Add environment variable to profile'
+        'load:Load profile into current session'
+        'unload:Unload profile from current session'
+        'list:List all profiles'
+        'ls:List all profiles (alias)'
+        'rm:Remove profile'
+        'remove:Remove profile (alias)'
+        'delete:Remove profile (alias)'
+        'edit:Edit profile with $EDITOR'
+        'show:Display profile content'
+        'cat:Display profile content (alias)'
+        'view:Display profile content (alias)'
+        'export:Export profile to file'
+        'import:Import file as profile'
+        'help:Show help message'
+    )
+
+    # Get list of profiles (N flag returns empty array if no matches)
+    if [[ -d $profile_dir ]]; then
+        profiles=( ${profile_dir}/*(N:t) )
+    fi
+
+    # Completion logic based on position
+    case $CURRENT in
+        2)
+            # First argument: command
+            _describe 'command' commands
+            ;;
+        3)
+            # Second argument: depends on command
+            case $words[2] in
+                load|unload|rm|remove|delete|edit|show|cat|view|export)
+                    # Complete with profile names
+                    _describe 'profile' profiles
+                    ;;
+                add)
+                    # Profile name (no completion)
+                    _message 'profile name'
+                    ;;
+                import)
+                    # File path
+                    _files
+                    ;;
+                help)
+                    # Command names for help
+                    local -a help_commands
+                    help_commands=(
+                        'add' 'load' 'unload' 'list' 'ls' 'rm' 'remove' 'delete'
+                        'edit' 'show' 'cat' 'view' 'export' 'import'
+                    )
+                    _describe 'command' help_commands
+                    ;;
+            esac
+            ;;
+        4)
+            # Third argument: depends on command
+            case $words[2] in
+                add)
+                    # Variable name (no completion)
+                    _message 'variable name'
+                    ;;
+                import)
+                    # Profile name (no completion)
+                    _message 'profile name'
+                    ;;
+                export)
+                    # Output file path
+                    _files
+                    ;;
+            esac
+            ;;
+        5)
+            # Fourth argument: depends on command
+            case $words[2] in
+                add)
+                    # Variable value (no completion)
+                    _message 'variable value'
+                    ;;
+            esac
+            ;;
+    esac
+}
+
+_zem "$@"

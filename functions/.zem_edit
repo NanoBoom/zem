@@ -1,0 +1,55 @@
+# Edit profile with $EDITOR
+
+.zem_edit() {
+    emulate -L zsh
+    setopt extended_glob warn_create_global typeset_silent
+
+    local MATCH REPLY
+    integer MBEGIN MEND
+    local -a match mbegin mend reply
+
+    local profile=$1
+    local profile_dir="${XDG_CONFIG_HOME:-$HOME/.config}/zsh-env-manager/profiles"
+    local profile_file="$profile_dir/$profile"
+
+    # Validate arguments
+    if [[ -z $profile ]]; then
+        echo "❌ Missing profile name."
+        echo "Usage: zem edit <profile>"
+        return 1
+    fi
+
+    # Check if profile exists
+    if [[ ! -f $profile_file ]]; then
+        echo "⚠️  Profile '$profile' does not exist."
+        read "?Create it now? [y/N] " response
+        if [[ ! $response =~ ^[yY]$ ]]; then
+            echo "Cancelled."
+            return 0
+        fi
+        # Create empty profile with header
+        {
+            cat > "$profile_file" <<'EOF'
+# Environment profile: $profile
+# Add your environment variables below in the format:
+# export VAR_NAME="value"
+
+EOF
+        } || {
+            echo "❌ Failed to create profile file: $profile_file"
+            return 1
+        }
+    fi
+
+    # Determine editor
+    local editor="${EDITOR:-vi}"
+
+    # Open editor
+    "$editor" "$profile_file" || {
+        echo "❌ Failed to open editor: $editor"
+        return 1
+    }
+
+    echo "✅ Profile '$profile' saved."
+    return 0
+}

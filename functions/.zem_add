@@ -1,0 +1,60 @@
+# Add environment variable to profile
+
+.zem_add() {
+    emulate -L zsh
+    setopt extended_glob warn_create_global typeset_silent
+
+    local MATCH REPLY
+    integer MBEGIN MEND
+    local -a match mbegin mend reply
+
+    local profile=$1 key=$2 value=$3
+    local profile_dir="${XDG_CONFIG_HOME:-$HOME/.config}/zsh-env-manager/profiles"
+
+    # Validate arguments
+    if [[ -z $profile ]]; then
+        echo "❌ Missing profile name."
+        echo "Usage: zem add <profile> <key> <value>"
+        return 1
+    fi
+
+    if [[ -z $key ]]; then
+        echo "❌ Missing variable name."
+        echo "Usage: zem add <profile> <key> <value>"
+        return 1
+    fi
+
+    if [[ -z $value ]]; then
+        echo "❌ Missing variable value."
+        echo "Usage: zem add <profile> <key> <value>"
+        return 1
+    fi
+
+    # Validate key format (must be valid shell variable name)
+    if [[ ! $key =~ ^[A-Za-z_][A-Za-z0-9_]*$ ]]; then
+        echo "❌ Invalid variable name: $key"
+        echo "Variable names must start with a letter or underscore,"
+        echo "and contain only letters, numbers, and underscores."
+        return 1
+    fi
+
+    # Check if profile directory exists
+    if [[ ! -d $profile_dir ]]; then
+        echo "❌ Profile directory does not exist: $profile_dir"
+        echo "Run 'zem list' to initialize the directory."
+        return 1
+    fi
+
+    # Escape special characters in value
+    local escaped_value="${value//\\/\\\\}"    # Escape backslashes
+    escaped_value="${escaped_value//\"/\\\"}"  # Escape double quotes
+
+    # Append to profile file
+    echo "export $key=\"$escaped_value\"" >> "$profile_dir/$profile" || {
+        echo "❌ Failed to write to profile: $profile"
+        return 1
+    }
+
+    echo "✅ Added $key to profile '$profile'"
+    return 0
+}

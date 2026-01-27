@@ -1,0 +1,38 @@
+# Show profile content
+
+.zem_show() {
+    emulate -L zsh
+    setopt extended_glob warn_create_global typeset_silent
+
+    local MATCH REPLY
+    integer MBEGIN MEND
+    local -a match mbegin mend reply
+
+    local profile=$1
+    local profile_dir="${XDG_CONFIG_HOME:-$HOME/.config}/zsh-env-manager/profiles"
+    local profile_file="$profile_dir/$profile"
+
+    # Validate arguments
+    if [[ -z $profile ]]; then
+        echo "❌ Missing profile name."
+        echo "Usage: zem show <profile>"
+        return 1
+    fi
+
+    # Check if profile exists
+    if [[ ! -f $profile_file ]]; then
+        echo "❌ Profile '$profile' does not exist."
+        echo "Run 'zem list' to see available profiles."
+        return 1
+    fi
+
+    # Display profile header
+    echo "📄 Profile: $profile"
+    echo "   Location: $profile_file"
+    echo ""
+
+    # Display content
+    cat "$profile_file"
+
+    return 0
+}

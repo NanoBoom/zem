@@ -1,0 +1,51 @@
+# Unload profile from current session
+
+.zem_unload() {
+    emulate -L zsh
+    setopt extended_glob warn_create_global typeset_silent
+
+    local MATCH REPLY
+    integer MBEGIN MEND
+    local -a match mbegin mend reply
+
+    local profile=$1
+    local profile_dir="${XDG_CONFIG_HOME:-$HOME/.config}/zsh-env-manager/profiles"
+    local profile_file="$profile_dir/$profile"
+
+    # Validate arguments
+    if [[ -z $profile ]]; then
+        echo "❌ Missing profile name."
+        echo "Usage: zem unload <profile>"
+        return 1
+    fi
+
+    # Check if profile exists
+    if [[ ! -f $profile_file ]]; then
+        echo "❌ Profile '$profile' does not exist."
+        echo "Run 'zem list' to see available profiles."
+        return 1
+    fi
+
+    # Parse profile and unset variables
+    local line var
+    while IFS= read -r line; do
+        # Skip empty lines and comments
+        [[ -z $line || $line == \#* ]] && continue
+
+        # Extract variable name from export statements
+        # Format: export VAR_NAME="value" or export VAR_NAME=value
+        if [[ $line == export[[:space:]]* ]]; then
+            # Remove 'export' prefix
+            var="${line#export}"
+            # Remove leading whitespace
+            var="${var##[[:space:]]}"
+            # Extract variable name (everything before '=')
+            var="${var%%=*}"
+            # Unset the variable
+            unset "$var" 2>/dev/null
+        fi
+    done < "$profile_file"
+
+    echo "🧹 Profile '$profile' unloaded successfully!"
+    return 0
+}

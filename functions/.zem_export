@@ -1,0 +1,53 @@
+# Export profile to file
+
+.zem_export() {
+    emulate -L zsh
+    setopt extended_glob warn_create_global typeset_silent
+
+    local MATCH REPLY
+    integer MBEGIN MEND
+    local -a match mbegin mend reply
+
+    local profile=$1
+    local output_file=$2
+    local profile_dir="${XDG_CONFIG_HOME:-$HOME/.config}/zsh-env-manager/profiles"
+    local profile_file="$profile_dir/$profile"
+
+    # Validate arguments
+    if [[ -z $profile ]]; then
+        echo "❌ Missing profile name."
+        echo "Usage: zem export <profile> [output-file]"
+        return 1
+    fi
+
+    # Check if profile exists
+    if [[ ! -f $profile_file ]]; then
+        echo "❌ Profile '$profile' does not exist."
+        echo "Run 'zem list' to see available profiles."
+        return 1
+    fi
+
+    # Default output file
+    if [[ -z $output_file ]]; then
+        output_file="$profile.env"
+    fi
+
+    # Check if output file already exists
+    if [[ -f $output_file ]]; then
+        echo "⚠️  File '$output_file' already exists."
+        read "?Overwrite? [y/N] " response
+        if [[ ! $response =~ ^[yY]$ ]]; then
+            echo "Cancelled."
+            return 0
+        fi
+    fi
+
+    # Copy profile to output file
+    cp "$profile_file" "$output_file" || {
+        echo "❌ Failed to export profile to: $output_file"
+        return 1
+    }
+
+    echo "📦 Profile '$profile' exported to: $output_file"
+    return 0
+}

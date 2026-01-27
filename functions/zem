@@ -1,0 +1,53 @@
+# Main command dispatcher for zsh-env-manager
+
+zem() {
+    emulate -L zsh
+    setopt extended_glob warn_create_global typeset_silent \
+           no_short_loops rc_quotes no_auto_pushd
+
+    local MATCH REPLY
+    integer MBEGIN MEND
+    local -a match mbegin mend reply
+
+    # Initialize config directory
+    .zem_init || return 1
+
+    # Dispatch subcommands
+    case "$1" in
+        add)
+            .zem_add "${@:2}"
+            ;;
+        load)
+            .zem_load "${@:2}"
+            ;;
+        unload)
+            .zem_unload "${@:2}"
+            ;;
+        list|ls)
+            .zem_list "${@:2}"
+            ;;
+        rm|remove|delete)
+            .zem_rm "${@:2}"
+            ;;
+        edit)
+            .zem_edit "${@:2}"
+            ;;
+        show|cat|view)
+            .zem_show "${@:2}"
+            ;;
+        export)
+            .zem_export "${@:2}"
+            ;;
+        import)
+            .zem_import "${@:2}"
+            ;;
+        help|--help|-h|'')
+            .zem_help "${@:2}"
+            ;;
+        *)
+            echo "❌ Unknown command: $1"
+            echo "Run 'zem help' for usage."
+            return 1
+            ;;
+    esac
+}

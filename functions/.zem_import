@@ -1,0 +1,64 @@
+# Import profile from file
+
+.zem_import() {
+    emulate -L zsh
+    setopt extended_glob warn_create_global typeset_silent
+
+    local MATCH REPLY
+    integer MBEGIN MEND
+    local -a match mbegin mend reply
+
+    local input_file=$1
+    local profile=$2
+    local profile_dir="${XDG_CONFIG_HOME:-$HOME/.config}/zsh-env-manager/profiles"
+
+    # Validate arguments
+    if [[ -z $input_file ]]; then
+        echo "❌ Missing input file."
+        echo "Usage: zem import <file> <profile>"
+        return 1
+    fi
+
+    if [[ -z $profile ]]; then
+        echo "❌ Missing profile name."
+        echo "Usage: zem import <file> <profile>"
+        return 1
+    fi
+
+    # Check if input file exists
+    if [[ ! -f $input_file ]]; then
+        echo "❌ File not found: $input_file"
+        return 1
+    fi
+
+    # Validate file is a text file
+    if ! file "$input_file" 2>/dev/null | grep -qi "text"; then
+        echo "⚠️  Warning: File may not be a text file: $input_file"
+        read "?Import anyway? [y/N] " response
+        if [[ ! $response =~ ^[yY]$ ]]; then
+            echo "Cancelled."
+            return 0
+        fi
+    fi
+
+    local profile_file="$profile_dir/$profile"
+
+    # Check if profile already exists
+    if [[ -f $profile_file ]]; then
+        echo "⚠️  Profile '$profile' already exists."
+        read "?Overwrite? [y/N] " response
+        if [[ ! $response =~ ^[yY]$ ]]; then
+            echo "Cancelled."
+            return 0
+        fi
+    fi
+
+    # Copy input file to profile
+    cp "$input_file" "$profile_file" || {
+        echo "❌ Failed to import file to profile: $profile"
+        return 1
+    }
+
+    echo "📥 File imported as profile '$profile'"
+    return 0
+}

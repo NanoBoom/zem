@@ -1,0 +1,70 @@
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Thumbnails
+Thumbs.db
+
+# Files that might appear in the root of a volume
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+
+# Directories potentially created on remote AFP share
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk
+
+# Linux
+*~
+.directory
+.Trash-*
+
+# Windows
+desktop.ini
+ehthumbs.db
+ehthumbs_vista.db
+
+# Editor backups and swap files
+*.swp
+*.swo
+*~
+.*.sw?
+\#*\#
+.\#*
+
+# IDE
+.vscode/
+.idea/
+*.iml
+
+# Test files
+test.sh
+test_*.sh
+*.test.zsh
+
+# Local configuration
+.env
+.envrc
+local/
+
+# Zsh compiled files
+*.zwc
+*.zwc.old
+
+# Logs
+*.log
+
+# Temporary files
+tmp/
+temp/
+.claude/
+CLAUDE.md

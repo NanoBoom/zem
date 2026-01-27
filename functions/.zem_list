@@ -1,0 +1,34 @@
+# List all profiles
+
+.zem_list() {
+    emulate -L zsh
+    setopt extended_glob
+
+    local profile_dir="${XDG_CONFIG_HOME:-$HOME/.config}/zsh-env-manager/profiles"
+
+    # Check if profile directory exists
+    if [[ ! -d $profile_dir ]]; then
+        echo "📂 No profiles found."
+        echo "Create one with: zem add <profile> <key> <value>"
+        return 0
+    fi
+
+    # Get list of profiles (N flag returns empty array if no matches)
+    local -a profiles
+    profiles=( "$profile_dir"/*(N:t) )
+
+    # Check if any profiles exist
+    if [[ ${#profiles[@]} -eq 0 ]]; then
+        echo "📂 No profiles found."
+        echo "Create one with: zem add <profile> <key> <value>"
+        return 0
+    fi
+
+    echo "📂 Available profiles:"
+    for profile in "${profiles[@]}"; do
+        [[ -z $profile ]] && continue
+        echo "  • $profile"
+    done
+
+    return 0
+}
