@@ -17,32 +17,32 @@ A modern, standards-compliant Zsh plugin for managing environment variable profi
 ### oh-my-zsh
 
 ```shell
-git clone https://github.com/doodleEsc/zsh-env-manager ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-env-manager
+git clone https://github.com/NanoBoom/zem ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zem
 ```
 
-Then add `zsh-env-manager` to your plugins array in `~/.zshrc`:
+Then add `zem` to your plugins array in `~/.zshrc`:
 
 ```shell
-plugins=(... zsh-env-manager)
+plugins=(... zem)
 ```
 
 ### zinit
 
 ```shell
-zinit light doodleEsc/zsh-env-manager
+zinit light NanoBoom/zem
 ```
 
 ### Antigen
 
 ```shell
-antigen bundle doodleEsc/zsh-env-manager
+antigen bundle NanoBoom/zem
 ```
 
 ### Manual
 
 ```shell
-git clone https://github.com/doodleEsc/zsh-env-manager ~/zsh-env-manager
-echo 'source ~/zsh-env-manager/zsh-env-manager.plugin.zsh' >> ~/.zshrc
+git clone https://github.com/NanoBoom/zem ~/zem
+echo 'source ~/zem/zem.plugin.zsh' >> ~/.zshrc
 ```
 
 ## Usage
@@ -100,7 +100,7 @@ zem help load
 
 Profiles are stored in:
 ```
-${XDG_CONFIG_HOME:-$HOME/.config}/zsh-env-manager/profiles/
+${XDG_CONFIG_HOME:-$HOME/.config}/zem/profiles/
 ```
 
 ### Environment Variables
@@ -191,7 +191,7 @@ zem unload project-b
 
 ```shell
 # Backup all profiles
-for profile in $(ls ~/.config/zsh-env-manager/profiles/); do
+for profile in $(ls ~/.config/zem/profiles/); do
     zem export $profile ~/backup/$profile.env
 done
 
@@ -215,8 +215,8 @@ If you're migrating from the original `demo.sh` script:
 2. **Storage location**: Profiles moved to XDG-compliant location
    ```shell
    # Copy existing profiles
-   mkdir -p ~/.config/zsh-env-manager/profiles
-   cp -r ~/.my_envs/* ~/.config/zsh-env-manager/profiles/
+   mkdir -p ~/.config/zem/profiles
+   cp -r ~/.my_envs/* ~/.config/zem/profiles/
    ```
 
 3. **Bug fixes**: The `unload` command now works correctly in Zsh (fixed `BASH_REMATCH` issue)
@@ -236,7 +236,7 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## Author
 
-Created by [doodleEsc](https://github.com/doodleEsc)
+Created by [NanoBoom](https://github.com/NanoBoom)
 
 ## Acknowledgments
 

@@ -10,7 +10,7 @@
 
     local input_file=$1
     local profile=$2
-    local profile_dir="${XDG_CONFIG_HOME:-$HOME/.config}/zsh-env-manager/profiles"
+    local profile_dir="${XDG_CONFIG_HOME:-$HOME/.config}/zem/profiles"
 
     # Validate arguments
     if [[ -z $input_file ]]; then

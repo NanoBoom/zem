@@ -1,6 +1,6 @@
-# zsh-env-manager.plugin.zsh
+# zem.plugin.zsh
 # Environment Profile Manager for Zsh
-# https://github.com/doodleEsc/zsh-env-manager
+# https://github.com/NanoBoom/zem
 
 # === 1. Standardized $0 handling ===
 0="${ZERO:-${${0:#$ZSH_ARGZERO}:-${(%):-%N}}}"
@@ -21,11 +21,11 @@ autoload -Uz .zem_init .zem_help
 compdef _zem zem
 
 # === 5. Unload function ===
-zsh-env-manager_plugin_unload() {
+zem_plugin_unload() {
     unfunction zem 2>/dev/null
     unfunction .zem_add .zem_load .zem_unload .zem_list .zem_rm 2>/dev/null
     unfunction .zem_edit .zem_show .zem_export .zem_import 2>/dev/null
     unfunction .zem_init .zem_help 2>/dev/null
     unfunction _zem 2>/dev/null
-    unfunction zsh-env-manager_plugin_unload 2>/dev/null
+    unfunction zem_plugin_unload 2>/dev/null
 }

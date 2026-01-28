@@ -4,7 +4,7 @@
     emulate -L zsh
     setopt extended_glob
 
-    local profile_dir="${XDG_CONFIG_HOME:-$HOME/.config}/zsh-env-manager/profiles"
+    local profile_dir="${XDG_CONFIG_HOME:-$HOME/.config}/zem/profiles"
 
     # Check if profile directory exists
     if [[ ! -d $profile_dir ]]; then

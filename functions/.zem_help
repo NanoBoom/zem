@@ -177,7 +177,7 @@ Examples:
   zem unload work
 
 Configuration:
-  Profiles are stored in: ${XDG_CONFIG_HOME:-$HOME/.config}/zsh-env-manager/profiles/
+  Profiles are stored in: ${XDG_CONFIG_HOME:-$HOME/.config}/zem/profiles/
 
 Environment Variables:
   ZEM_CONFIRM_LOAD    Set to 1 to enable confirmation before loading profiles

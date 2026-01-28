@@ -1,10 +1,10 @@
 #compdef zem
 
-# Completion function for zsh-env-manager
+# Completion function for zem
 
 _zem() {
     local -a commands profiles
-    local profile_dir="${XDG_CONFIG_HOME:-$HOME/.config}/zsh-env-manager/profiles"
+    local profile_dir="${XDG_CONFIG_HOME:-$HOME/.config}/zem/profiles"
 
     # Define commands
     commands=(

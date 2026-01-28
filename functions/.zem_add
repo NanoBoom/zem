@@ -9,7 +9,7 @@
     local -a match mbegin mend reply
 
     local profile=$1 key=$2 value=$3
-    local profile_dir="${XDG_CONFIG_HOME:-$HOME/.config}/zsh-env-manager/profiles"
+    local profile_dir="${XDG_CONFIG_HOME:-$HOME/.config}/zem/profiles"
 
     # Validate arguments
     if [[ -z $profile ]]; then

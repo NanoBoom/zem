@@ -1,4 +1,4 @@
-# Main command dispatcher for zsh-env-manager
+# Main command dispatcher for zem
 
 zem() {
     emulate -L zsh
