@@ -38,6 +38,20 @@ zinit light NanoBoom/zem
 antigen bundle NanoBoom/zem
 ```
 
+### zimfw
+
+Add the following to your `~/.zimrc`:
+
+```shell
+zmodule NanoBoom/zem
+```
+
+Then run:
+
+```shell
+zimfw install
+```
+
 ### Manual
 
 ```shell
