@@ -1,0 +1,49 @@
+# Set configuration value
+
+.zem_config_set() {
+    emulate -L zsh
+    setopt extended_glob warn_create_global typeset_silent
+
+    local key=$1 value=$2
+    local config_dir="${XDG_CONFIG_HOME:-$HOME/.config}/zem"
+    local config_file="$config_dir/config"
+
+    # Validate arguments
+    if [[ -z $key ]]; then
+        return 1
+    fi
+
+    # Create config directory if needed
+    if [[ ! -d $config_dir ]]; then
+        mkdir -p "$config_dir" 2>/dev/null || return 1
+    fi
+
+    # Create config file if needed
+    if [[ ! -f $config_file ]]; then
+        touch "$config_file" || return 1
+    fi
+
+    # Remove old value if exists (use grep -F for fixed string matching)
+    if [[ -f $config_file ]]; then
+        # Create backup and remove old value
+        local tmp_file="${config_file}.tmp.$$"
+        grep -vF "${key}=" "$config_file" > "$tmp_file" 2>/dev/null
+        local grep_exit=$?
+
+        # grep returns 0 if lines were found and filtered, 1 if no lines matched (which is OK)
+        if [[ $grep_exit -eq 0 || $grep_exit -eq 1 ]]; then
+            mv "$tmp_file" "$config_file"
+        else
+            # If grep fails with other error, keep original file
+            rm -f "$tmp_file"
+            return 1
+        fi
+    fi
+
+    # Add new value (if not empty)
+    if [[ -n $value ]]; then
+        echo "${key}=${value}" >> "$config_file"
+    fi
+
+    return 0
+}

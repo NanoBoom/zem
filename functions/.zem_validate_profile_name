@@ -1,0 +1,33 @@
+# Validate profile name for security
+
+.zem_validate_profile_name() {
+    emulate -L zsh
+    setopt extended_glob warn_create_global typeset_silent
+
+    local MATCH REPLY
+    integer MBEGIN MEND
+    local -a match mbegin mend reply
+
+    local profile=$1
+
+    # Check if profile name is empty
+    if [[ -z $profile ]]; then
+        return 1
+    fi
+
+    # Check for path traversal attempts
+    if [[ $profile == */* || $profile == *.* ]]; then
+        echo "❌ Invalid profile name: '$profile'"
+        echo "   Profile names cannot contain '/' or '..'"
+        return 1
+    fi
+
+    # Check for valid characters (alphanumeric, underscore, hyphen)
+    if [[ ! $profile =~ ^[a-zA-Z0-9_-]+$ ]]; then
+        echo "❌ Invalid profile name: '$profile'"
+        echo "   Profile names can only contain letters, numbers, underscores, and hyphens."
+        return 1
+    fi
+
+    return 0
+}

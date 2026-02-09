@@ -9,21 +9,40 @@
     local -a match mbegin mend reply
 
     local profile=$1
+    local set_default=0
     local profile_dir="${XDG_CONFIG_HOME:-$HOME/.config}/zem/profiles"
+
+    # Parse --default flag
+    if [[ $2 == "--default" ]]; then
+        set_default=1
+    fi
+
     local profile_file="$profile_dir/$profile"
 
     # Validate arguments
     if [[ -z $profile ]]; then
         echo "❌ Missing profile name."
-        echo "Usage: zem load <profile>"
+        echo "Usage: zem load <profile> [--default]"
         return 1
     fi
+
+    # Validate profile name
+    .zem_validate_profile_name "$profile" || return 1
 
     # Check if profile exists
     if [[ ! -f $profile_file ]]; then
         echo "❌ Profile '$profile' does not exist."
         echo "Run 'zem list' to see available profiles."
         return 1
+    fi
+
+    # Set as default if requested
+    if (( set_default )); then
+        .zem_config_set default_profile "$profile" || {
+            echo "❌ Failed to save default profile."
+            return 1
+        }
+        echo "✅ Set '$profile' as default profile."
     fi
 
     # Optional: Confirm before loading (controlled by ZEM_CONFIRM_LOAD)

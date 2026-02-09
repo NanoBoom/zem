@@ -41,6 +41,9 @@ zem() {
         import)
             .zem_import "${@:2}"
             ;;
+        default)
+            .zem_default "${@:2}"
+            ;;
         help|--help|-h|'')
             .zem_help "${@:2}"
             ;;

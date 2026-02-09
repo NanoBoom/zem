@@ -1,0 +1,27 @@
+# Get configuration value
+
+.zem_config_get() {
+    emulate -L zsh
+    setopt extended_glob warn_create_global typeset_silent
+
+    local key=$1
+    local config_file="${XDG_CONFIG_HOME:-$HOME/.config}/zem/config"
+
+    # Validate argument
+    if [[ -z $key ]]; then
+        return 1
+    fi
+
+    # Return empty if config file doesn't exist
+    if [[ ! -f $config_file ]]; then
+        return 0
+    fi
+
+    # Read value (use grep -F for fixed string matching)
+    local value
+    value=$(grep -F "${key}=" "$config_file" 2>/dev/null | head -1 | cut -d= -f2-)
+
+    # Output value (empty if not found)
+    echo "$value"
+    return 0
+}

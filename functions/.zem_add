@@ -18,6 +18,9 @@
         return 1
     fi
 
+    # Validate profile name
+    .zem_validate_profile_name "$profile" || return 1
+
     if [[ -z $key ]]; then
         echo "❌ Missing variable name."
         echo "Usage: zem add <profile> <key> <value>"

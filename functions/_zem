@@ -22,6 +22,7 @@ _zem() {
         'view:Display profile content (alias)'
         'export:Export profile to file'
         'import:Import file as profile'
+        'default:Manage default profile'
         'help:Show help message'
     )
 
@@ -39,7 +40,7 @@ _zem() {
         3)
             # Second argument: depends on command
             case $words[2] in
-                load|unload|rm|remove|delete|edit|show|cat|view|export)
+                load|unload|rm|remove|delete|edit|show|cat|view|export|default)
                     # Complete with profile names
                     _describe 'profile' profiles
                     ;;
@@ -56,7 +57,7 @@ _zem() {
                     local -a help_commands
                     help_commands=(
                         'add' 'load' 'unload' 'list' 'ls' 'rm' 'remove' 'delete'
-                        'edit' 'show' 'cat' 'view' 'export' 'import'
+                        'edit' 'show' 'cat' 'view' 'export' 'import' 'default'
                     )
                     _describe 'command' help_commands
                     ;;

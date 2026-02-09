@@ -1,0 +1,62 @@
+# Manage default profile
+
+.zem_default() {
+    emulate -L zsh
+    setopt extended_glob warn_create_global typeset_silent
+
+    local MATCH REPLY
+    integer MBEGIN MEND
+    local -a match mbegin mend reply
+
+    local profile=$1
+    local profile_dir="${XDG_CONFIG_HOME:-$HOME/.config}/zem/profiles"
+
+    # Handle --unset flag
+    if [[ $1 == "--unset" ]]; then
+        .zem_config_set default_profile "" || {
+            echo "❌ Failed to unset default profile."
+            return 1
+        }
+        echo "✅ Default profile unset."
+        echo "   New shells will not auto-load any profile."
+        return 0
+    fi
+
+    # If no argument, show current default
+    if [[ -z $profile ]]; then
+        local current=$(.zem_config_get default_profile)
+        if [[ -z $current ]]; then
+            echo "📂 No default profile set."
+            echo "Usage: zem default <profile>"
+        else
+            echo "📌 Default profile: $current"
+
+            # Check if profile still exists
+            local profile_file="$profile_dir/$current"
+            if [[ ! -f $profile_file ]]; then
+                echo "⚠️  Warning: Profile file does not exist."
+            fi
+        fi
+        return 0
+    fi
+
+    # Validate profile name
+    .zem_validate_profile_name "$profile" || return 1
+
+    # Validate profile exists
+    if [[ ! -f $profile_dir/$profile ]]; then
+        echo "❌ Profile '$profile' does not exist."
+        echo "Run 'zem list' to see available profiles."
+        return 1
+    fi
+
+    # Set default profile
+    .zem_config_set default_profile "$profile" || {
+        echo "❌ Failed to set default profile."
+        return 1
+    }
+
+    echo "✅ Default profile set to '$profile'"
+    echo "   New shells will automatically load this profile."
+    return 0
+}
