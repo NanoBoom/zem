@@ -26,35 +26,38 @@ EOF
                 ;;
             load)
                 cat <<'EOF'
-Usage: zem load <profile> [--default]
+Usage: zem load <profile> [<profile2> ...] [--default]
 
-Load a profile into the current shell session.
+Load one or more profiles into the current shell session.
 
 Arguments:
-  profile      Name of the profile to load
-  --default    Also set this profile as default for new shells
+  profile      Name of the profile(s) to load
+  --default    Set loaded profiles as default for new shells
 
 Examples:
   zem load work
-  zem load work --default
+  zem load work personal --default
+  zem load dev staging prod
 
 Note:
   Set ZEM_CONFIRM_LOAD=1 to enable confirmation prompt before loading.
   Use 'zem default' to manage default profile settings.
+  If a profile fails to load, remaining profiles will still be processed.
 EOF
                 ;;
             unload)
                 cat <<'EOF'
-Usage: zem unload <profile>
+Usage: zem unload <profile> [<profile2> ...]
 
-Unload a profile from the current shell session.
-This will unset all environment variables defined in the profile.
+Unload one or more profiles from the current shell session.
+This will unset all environment variables defined in the profiles.
 
 Arguments:
-  profile    Name of the profile to unload
+  profile    Name of the profile(s) to unload
 
-Example:
+Examples:
   zem unload work
+  zem unload work personal
 EOF
                 ;;
             list|ls)
@@ -146,23 +149,25 @@ EOF
                 ;;
             default)
                 cat <<'EOF'
-Usage: zem default [profile]
+Usage: zem default [<profile> [<profile2> ...]]
    or: zem default --unset
 
-Manage the default profile that loads automatically in new shells.
+Manage the default profile(s) that load automatically in new shells.
 
 Arguments:
-  profile    Name of the profile to set as default (optional)
+  profile    Name of the profile(s) to set as default (optional)
   --unset    Remove the default profile setting
 
 Examples:
-  zem default              # Show current default profile
-  zem default work         # Set 'work' as default profile
-  zem default --unset      # Remove default profile setting
+  zem default                    # Show current default profile(s)
+  zem default work               # Set 'work' as default profile
+  zem default work personal      # Set multiple default profiles
+  zem default --unset            # Remove default profile setting
 
 Note:
-  The default profile is automatically loaded when you start a new shell.
+  Default profiles are automatically loaded when you start a new shell.
   Use 'zem load <profile> --default' to load and set default in one command.
+  Multiple profiles are loaded in the order specified.
 EOF
                 ;;
             *)
@@ -182,25 +187,25 @@ Usage:
   zem <command> [arguments]
 
 Commands:
-  add <profile> <key> <value>   Add environment variable to profile
-  load <profile> [--default]    Load profile into current session
-  unload <profile>              Unload profile from current session
-  list                          List all profiles
-  rm <profile>                  Remove profile
-  edit <profile>                Edit profile with $EDITOR
-  show <profile>                Display profile content
-  export <profile> [file]       Export profile to file
-  import <file> <profile>       Import file as profile
-  default [profile]             Manage default profile
-  help [command]                Show help message
+  add <profile> <key> <value>       Add environment variable to profile
+  load <profile> [...] [--default]  Load profile(s) into current session
+  unload <profile> [...]            Unload profile(s) from current session
+  list                              List all profiles
+  rm <profile>                      Remove profile
+  edit <profile>                    Edit profile with $EDITOR
+  show <profile>                    Display profile content
+  export <profile> [file]           Export profile to file
+  import <file> <profile>           Import file as profile
+  default [<profile> ...]           Manage default profile(s)
+  help [command]                    Show help message
 
 Examples:
   zem add work API_KEY "sk-123456"
-  zem load work --default
-  zem default work
+  zem load work personal --default
+  zem default work personal
   zem list
   zem show work
-  zem unload work
+  zem unload work personal
 
 Configuration:
   Profiles are stored in: ${XDG_CONFIG_HOME:-$HOME/.config}/zem/profiles/

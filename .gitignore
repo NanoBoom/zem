@@ -68,3 +68,4 @@ tmp/
 temp/
 .claude/
 CLAUDE.md
+.mcp.json
