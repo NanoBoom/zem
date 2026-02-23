@@ -37,55 +37,66 @@ _zem() {
             # First argument: command
             _describe 'command' commands
             ;;
-        3)
-            # Second argument: depends on command
+        *)
+            # Second argument onwards: depends on command
             case $words[2] in
-                load|unload|rm|remove|delete|edit|show|cat|view|export|default)
-                    # Complete with profile names
+                load)
+                    # Support multiple profiles + --default flag
+                    if [[ ${words[CURRENT]} == -* ]]; then
+                        local -a load_opts
+                        load_opts=('--default:Set loaded profiles as default')
+                        _describe 'option' load_opts
+                    else
+                        _describe 'profile' profiles
+                    fi
+                    ;;
+                unload)
+                    # Support multiple profiles
                     _describe 'profile' profiles
                     ;;
-                add)
-                    # Profile name (no completion)
-                    _message 'profile name'
+                default)
+                    # Support multiple profiles or --unset
+                    if [[ ${words[CURRENT]} == -* ]]; then
+                        local -a default_opts
+                        default_opts=('--unset:Unset default profile')
+                        _describe 'option' default_opts
+                    else
+                        _describe 'profile' profiles
+                    fi
                     ;;
-                import)
-                    # File path
-                    _files
-                    ;;
-                help)
-                    # Command names for help
-                    local -a help_commands
-                    help_commands=(
-                        'add' 'load' 'unload' 'list' 'ls' 'rm' 'remove' 'delete'
-                        'edit' 'show' 'cat' 'view' 'export' 'import' 'default'
-                    )
-                    _describe 'command' help_commands
-                    ;;
-            esac
-            ;;
-        4)
-            # Third argument: depends on command
-            case $words[2] in
-                add)
-                    # Variable name (no completion)
-                    _message 'variable name'
-                    ;;
-                import)
-                    # Profile name (no completion)
-                    _message 'profile name'
+                rm|remove|delete|edit|show|cat|view)
+                    if [[ $CURRENT == 3 ]]; then
+                        _describe 'profile' profiles
+                    fi
                     ;;
                 export)
-                    # Output file path
-                    _files
+                    case $CURRENT in
+                        3) _describe 'profile' profiles ;;
+                        4) _files ;;
+                    esac
                     ;;
-            esac
-            ;;
-        5)
-            # Fourth argument: depends on command
-            case $words[2] in
                 add)
-                    # Variable value (no completion)
-                    _message 'variable value'
+                    case $CURRENT in
+                        3) _message 'profile name' ;;
+                        4) _message 'variable name' ;;
+                        5) _message 'variable value' ;;
+                    esac
+                    ;;
+                import)
+                    case $CURRENT in
+                        3) _files ;;
+                        4) _message 'profile name' ;;
+                    esac
+                    ;;
+                help)
+                    if [[ $CURRENT == 3 ]]; then
+                        local -a help_commands
+                        help_commands=(
+                            'add' 'load' 'unload' 'list' 'ls' 'rm' 'remove' 'delete'
+                            'edit' 'show' 'cat' 'view' 'export' 'import' 'default'
+                        )
+                        _describe 'command' help_commands
+                    fi
                     ;;
             esac
             ;;

@@ -1,4 +1,4 @@
-# Unload profile from current session
+# Unload profile(s) from current session
 
 .zem_unload() {
     emulate -L zsh
@@ -8,44 +8,53 @@
     integer MBEGIN MEND
     local -a match mbegin mend reply
 
-    local profile=$1
     local profile_dir="${XDG_CONFIG_HOME:-$HOME/.config}/zem/profiles"
-    local profile_file="$profile_dir/$profile"
+    local -a profiles
+    local failed=0
 
-    # Validate arguments
-    if [[ -z $profile ]]; then
+    profiles=("$@")
+
+    # Validate: at least one profile required
+    if (( ${#profiles} == 0 )); then
         echo "❌ Missing profile name."
-        echo "Usage: zem unload <profile>"
+        echo "Usage: zem unload <profile> [<profile2> ...]"
         return 1
     fi
 
-    # Check if profile exists
-    if [[ ! -f $profile_file ]]; then
-        echo "❌ Profile '$profile' does not exist."
-        echo "Run 'zem list' to see available profiles."
-        return 1
-    fi
+    # Unload each profile
+    local profile profile_file line var
+    for profile in "${profiles[@]}"; do
+        profile_file="$profile_dir/$profile"
 
-    # Parse profile and unset variables
-    local line var
-    while IFS= read -r line; do
-        # Skip empty lines and comments
-        [[ -z $line || $line == \#* ]] && continue
-
-        # Extract variable name from export statements
-        # Format: export VAR_NAME="value" or export VAR_NAME=value
-        if [[ $line == export[[:space:]]* ]]; then
-            # Remove 'export' prefix
-            var="${line#export}"
-            # Remove leading whitespace
-            var="${var##[[:space:]]}"
-            # Extract variable name (everything before '=')
-            var="${var%%=*}"
-            # Unset the variable
-            unset "$var" 2>/dev/null
+        # Check if profile exists
+        if [[ ! -f $profile_file ]]; then
+            echo "❌ Profile '$profile' does not exist."
+            echo "   Run 'zem list' to see available profiles."
+            failed=1
+            continue
         fi
-    done < "$profile_file"
 
-    echo "🧹 Profile '$profile' unloaded successfully!"
-    return 0
+        # Parse profile and unset variables
+        while IFS= read -r line; do
+            # Skip empty lines and comments
+            [[ -z $line || $line == \#* ]] && continue
+
+            # Extract variable name from export statements
+            # Format: export VAR_NAME="value" or export VAR_NAME=value
+            if [[ $line == export[[:space:]]* ]]; then
+                # Remove 'export' prefix
+                var="${line#export}"
+                # Remove leading whitespace
+                var="${var##[[:space:]]}"
+                # Extract variable name (everything before '=')
+                var="${var%%=*}"
+                # Unset the variable
+                unset "$var" 2>/dev/null
+            fi
+        done < "$profile_file"
+
+        echo "🧹 Profile '$profile' unloaded successfully!"
+    done
+
+    return $failed
 }

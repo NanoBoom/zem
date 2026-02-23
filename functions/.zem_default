@@ -1,4 +1,4 @@
-# Manage default profile
+# Manage default profile(s)
 
 .zem_default() {
     emulate -L zsh
@@ -8,8 +8,8 @@
     integer MBEGIN MEND
     local -a match mbegin mend reply
 
-    local profile=$1
     local profile_dir="${XDG_CONFIG_HOME:-$HOME/.config}/zem/profiles"
+    local -a profiles
 
     # Handle --unset flag
     if [[ $1 == "--unset" ]]; then
@@ -22,41 +22,49 @@
         return 0
     fi
 
-    # If no argument, show current default
-    if [[ -z $profile ]]; then
+    # If no argument, show current default(s)
+    if (( $# == 0 )); then
         local current=$(.zem_config_get default_profile)
         if [[ -z $current ]]; then
             echo "📂 No default profile set."
-            echo "Usage: zem default <profile>"
+            echo "Usage: zem default <profile> [<profile2> ...]"
         else
-            echo "📌 Default profile: $current"
-
-            # Check if profile still exists
-            local profile_file="$profile_dir/$current"
-            if [[ ! -f $profile_file ]]; then
-                echo "⚠️  Warning: Profile file does not exist."
-            fi
+            echo "📌 Default profile(s): $current"
+            local p
+            for p in ${(s: :)current}; do
+                if [[ ! -f $profile_dir/$p ]]; then
+                    echo "⚠️  Warning: Profile '$p' does not exist."
+                fi
+            done
         fi
         return 0
     fi
 
-    # Validate profile name
-    .zem_validate_profile_name "$profile" || return 1
+    profiles=("$@")
 
-    # Validate profile exists
-    if [[ ! -f $profile_dir/$profile ]]; then
-        echo "❌ Profile '$profile' does not exist."
-        echo "Run 'zem list' to see available profiles."
-        return 1
-    fi
+    # Validate each profile exists
+    local profile
+    for profile in "${profiles[@]}"; do
+        .zem_validate_profile_name "$profile" || return 1
+        if [[ ! -f $profile_dir/$profile ]]; then
+            echo "❌ Profile '$profile' does not exist."
+            echo "Run 'zem list' to see available profiles."
+            return 1
+        fi
+    done
 
-    # Set default profile
-    .zem_config_set default_profile "$profile" || {
+    # Set default profile(s)
+    .zem_config_set default_profile "${profiles[*]}" || {
         echo "❌ Failed to set default profile."
         return 1
     }
 
-    echo "✅ Default profile set to '$profile'"
-    echo "   New shells will automatically load this profile."
+    if (( ${#profiles} == 1 )); then
+        echo "✅ Default profile set to '${profiles[1]}'"
+        echo "   New shells will automatically load this profile."
+    else
+        echo "✅ Default profiles set to '${profiles[*]}'"
+        echo "   New shells will automatically load these profiles."
+    fi
     return 0
 }

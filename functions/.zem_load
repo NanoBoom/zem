@@ -1,4 +1,4 @@
-# Load profile into current session
+# Load profile(s) into current session
 
 .zem_load() {
     emulate -L zsh
@@ -8,60 +8,80 @@
     integer MBEGIN MEND
     local -a match mbegin mend reply
 
-    local profile=$1
     local set_default=0
     local profile_dir="${XDG_CONFIG_HOME:-$HOME/.config}/zem/profiles"
+    local -a profiles loaded_profiles
+    local failed=0
 
-    # Parse --default flag
-    if [[ $2 == "--default" ]]; then
-        set_default=1
-    fi
+    # Parse arguments: --default flag can appear anywhere
+    local arg
+    for arg in "$@"; do
+        if [[ $arg == "--default" ]]; then
+            set_default=1
+        else
+            profiles+=("$arg")
+        fi
+    done
 
-    local profile_file="$profile_dir/$profile"
-
-    # Validate arguments
-    if [[ -z $profile ]]; then
+    # Validate: at least one profile required
+    if (( ${#profiles} == 0 )); then
         echo "❌ Missing profile name."
-        echo "Usage: zem load <profile> [--default]"
+        echo "Usage: zem load <profile> [<profile2> ...] [--default]"
         return 1
     fi
 
-    # Validate profile name
-    .zem_validate_profile_name "$profile" || return 1
+    # Load each profile
+    local profile profile_file
+    for profile in "${profiles[@]}"; do
+        profile_file="$profile_dir/$profile"
 
-    # Check if profile exists
-    if [[ ! -f $profile_file ]]; then
-        echo "❌ Profile '$profile' does not exist."
-        echo "Run 'zem list' to see available profiles."
-        return 1
-    fi
+        # Validate profile name
+        if ! .zem_validate_profile_name "$profile"; then
+            failed=1
+            continue
+        fi
 
-    # Set as default if requested
-    if (( set_default )); then
-        .zem_config_set default_profile "$profile" || {
-            echo "❌ Failed to save default profile."
+        # Check if profile exists
+        if [[ ! -f $profile_file ]]; then
+            echo "❌ Profile '$profile' does not exist."
+            echo "   Run 'zem list' to see available profiles."
+            failed=1
+            continue
+        fi
+
+        # Optional: Confirm before loading (controlled by ZEM_CONFIRM_LOAD)
+        if [[ -n $ZEM_CONFIRM_LOAD ]]; then
+            echo "⚠️  Warning: This will execute code from '$profile'"
+            echo "   File: $profile_file"
+            read "?Continue? [y/N] " response
+            if [[ ! $response =~ ^[yY]$ ]]; then
+                echo "Cancelled."
+                continue
+            fi
+        fi
+
+        # Source the profile
+        if source "$profile_file"; then
+            echo "🚀 Profile '$profile' loaded successfully!"
+            loaded_profiles+=("$profile")
+        else
+            echo "❌ Failed to load profile: $profile"
+            failed=1
+        fi
+    done
+
+    # Set as default if requested (only successfully loaded profiles)
+    if (( set_default )) && (( ${#loaded_profiles} > 0 )); then
+        .zem_config_set default_profile "${loaded_profiles[*]}" || {
+            echo "❌ Failed to save default profile(s)."
             return 1
         }
-        echo "✅ Set '$profile' as default profile."
-    fi
-
-    # Optional: Confirm before loading (controlled by ZEM_CONFIRM_LOAD)
-    if [[ -n $ZEM_CONFIRM_LOAD ]]; then
-        echo "⚠️  Warning: This will execute code from '$profile'"
-        echo "   File: $profile_file"
-        read "?Continue? [y/N] " response
-        if [[ ! $response =~ ^[yY]$ ]]; then
-            echo "Cancelled."
-            return 0
+        if (( ${#loaded_profiles} == 1 )); then
+            echo "✅ Set '${loaded_profiles[1]}' as default profile."
+        else
+            echo "✅ Set '${loaded_profiles[*]}' as default profiles."
         fi
     fi
 
-    # Source the profile
-    source "$profile_file" || {
-        echo "❌ Failed to load profile: $profile"
-        return 1
-    }
-
-    echo "🚀 Profile '$profile' loaded successfully!"
-    return 0
+    return $failed
 }

@@ -22,14 +22,17 @@ autoload -Uz .zem_validate_profile_name
 # === 4. Register completion ===
 compdef _zem zem
 
-# === 5. Auto-load default profile ===
+# === 5. Auto-load default profile(s) ===
 () {
-    local default_profile=$(.zem_config_get default_profile)
+    local default_profiles=$(.zem_config_get default_profile)
 
-    if [[ -n $default_profile ]]; then
-        local profile_file="${XDG_CONFIG_HOME:-$HOME/.config}/zem/profiles/$default_profile"
-        # Silently load if profile exists
-        [[ -f $profile_file ]] && source "$profile_file" 2>/dev/null
+    if [[ -n $default_profiles ]]; then
+        local profile_dir="${XDG_CONFIG_HOME:-$HOME/.config}/zem/profiles"
+        local p
+        for p in ${(s: :)default_profiles}; do
+            local profile_file="$profile_dir/$p"
+            [[ -f $profile_file ]] && source "$profile_file" 2>/dev/null
+        done
     fi
 }
 
