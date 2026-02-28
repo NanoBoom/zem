@@ -17,15 +17,15 @@
 
     # Check for path traversal attempts
     if [[ $profile == */* || $profile == *.* ]]; then
-        echo "❌ Invalid profile name: '$profile'"
-        echo "   Profile names cannot contain '/' or '..'"
+        printf "${ZEM_MSGS[validate_invalid]}\n" "$profile"
+        echo "${ZEM_MSGS[validate_invalid_slash]}"
         return 1
     fi
 
     # Check for valid characters (alphanumeric, underscore, hyphen)
     if [[ ! $profile =~ ^[a-zA-Z0-9_-]+$ ]]; then
-        echo "❌ Invalid profile name: '$profile'"
-        echo "   Profile names can only contain letters, numbers, underscores, and hyphens."
+        printf "${ZEM_MSGS[validate_invalid]}\n" "$profile"
+        echo "${ZEM_MSGS[validate_invalid_chars]}"
         return 1
     fi
 

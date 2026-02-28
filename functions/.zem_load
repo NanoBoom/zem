@@ -10,8 +10,13 @@
 
     local set_default=0
     local profile_dir="${XDG_CONFIG_HOME:-$HOME/.config}/zem/profiles"
-    local -a profiles loaded_profiles
+    local -a profiles loaded_profiles current_list
     local failed=0
+
+    [[ $1 == (-h|--help|help) ]] && { .zem_help load; return $? }
+
+    # Parse current loaded profiles once before the loop
+    current_list=(${(s: :)ZEM_LOADED_PROFILES})
 
     # Parse arguments: --default flag can appear anywhere
     local arg
@@ -25,8 +30,8 @@
 
     # Validate: at least one profile required
     if (( ${#profiles} == 0 )); then
-        echo "❌ Missing profile name."
-        echo "Usage: zem load <profile> [<profile2> ...] [--default]"
+        echo "${ZEM_MSGS[common_missing_profile]}"
+        echo "${ZEM_MSGS[load_usage]}"
         return 1
     fi
 
@@ -43,43 +48,51 @@
 
         # Check if profile exists
         if [[ ! -f $profile_file ]]; then
-            echo "❌ Profile '$profile' does not exist."
-            echo "   Run 'zem list' to see available profiles."
+            printf "${ZEM_MSGS[common_not_exist]}\n" "$profile"
+            echo "${ZEM_MSGS[common_list_hint]}"
             failed=1
             continue
         fi
 
         # Optional: Confirm before loading (controlled by ZEM_CONFIRM_LOAD)
         if [[ -n $ZEM_CONFIRM_LOAD ]]; then
-            echo "⚠️  Warning: This will execute code from '$profile'"
-            echo "   File: $profile_file"
-            read "?Continue? [y/N] " response
+            printf "${ZEM_MSGS[load_warn_exec]}\n" "$profile"
+            printf "${ZEM_MSGS[load_warn_file]}\n" "$profile_file"
+            local prompt="${ZEM_MSGS[load_confirm]}"
+            read "?${prompt}" response
             if [[ ! $response =~ ^[yY]$ ]]; then
-                echo "Cancelled."
+                echo "${ZEM_MSGS[common_cancelled]}"
                 continue
             fi
         fi
 
         # Source the profile
         if source "$profile_file"; then
-            echo "🚀 Profile '$profile' loaded successfully!"
+            printf "${ZEM_MSGS[load_success]}\n" "$profile"
             loaded_profiles+=("$profile")
+            # Track in current_list (avoid duplicates)
+            if (( current_list[(Ie)$profile] == 0 )); then
+                current_list+=("$profile")
+            fi
         else
-            echo "❌ Failed to load profile: $profile"
+            printf "${ZEM_MSGS[load_failed]}\n" "$profile"
             failed=1
         fi
     done
 
+    # Write back ZEM_LOADED_PROFILES once after all loads
+    export ZEM_LOADED_PROFILES="${current_list[*]}"
+
     # Set as default if requested (only successfully loaded profiles)
     if (( set_default )) && (( ${#loaded_profiles} > 0 )); then
         .zem_config_set default_profile "${loaded_profiles[*]}" || {
-            echo "❌ Failed to save default profile(s)."
+            echo "${ZEM_MSGS[load_failed_default]}"
             return 1
         }
         if (( ${#loaded_profiles} == 1 )); then
-            echo "✅ Set '${loaded_profiles[1]}' as default profile."
+            printf "${ZEM_MSGS[load_set_default_single]}\n" "${loaded_profiles[1]}"
         else
-            echo "✅ Set '${loaded_profiles[*]}' as default profiles."
+            printf "${ZEM_MSGS[load_set_default_multi]}\n" "${loaded_profiles[*]}"
         fi
     fi
 

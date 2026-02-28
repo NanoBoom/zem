@@ -13,17 +13,19 @@
     local profile_dir="${XDG_CONFIG_HOME:-$HOME/.config}/zem/profiles"
     local profile_file="$profile_dir/$profile"
 
+    [[ $1 == (-h|--help|help) ]] && { .zem_help export; return $? }
+
     # Validate arguments
     if [[ -z $profile ]]; then
-        echo "❌ Missing profile name."
-        echo "Usage: zem export <profile> [output-file]"
+        echo "${ZEM_MSGS[common_missing_profile]}"
+        echo "${ZEM_MSGS[export_usage]}"
         return 1
     fi
 
     # Check if profile exists
     if [[ ! -f $profile_file ]]; then
-        echo "❌ Profile '$profile' does not exist."
-        echo "Run 'zem list' to see available profiles."
+        printf "${ZEM_MSGS[common_not_exist]}\n" "$profile"
+        echo "${ZEM_MSGS[common_list_hint]}"
         return 1
     fi
 
@@ -34,20 +36,21 @@
 
     # Check if output file already exists
     if [[ -f $output_file ]]; then
-        echo "⚠️  File '$output_file' already exists."
-        read "?Overwrite? [y/N] " response
+        printf "${ZEM_MSGS[export_exists]}\n" "$output_file"
+        local prompt="${ZEM_MSGS[export_overwrite]}"
+        read "?${prompt}" response
         if [[ ! $response =~ ^[yY]$ ]]; then
-            echo "Cancelled."
+            echo "${ZEM_MSGS[common_cancelled]}"
             return 0
         fi
     fi
 
     # Copy profile to output file
     cp "$profile_file" "$output_file" || {
-        echo "❌ Failed to export profile to: $output_file"
+        printf "${ZEM_MSGS[export_failed]}\n" "$output_file"
         return 1
     }
 
-    echo "📦 Profile '$profile' exported to: $output_file"
+    printf "${ZEM_MSGS[export_success]}\n" "$profile" "$output_file"
     return 0
 }

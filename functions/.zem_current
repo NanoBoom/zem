@@ -1,0 +1,25 @@
+# Show currently loaded profiles in this session
+
+.zem_current() {
+    emulate -L zsh
+    setopt extended_glob
+
+    [[ $1 == (-h|--help|help) ]] && { .zem_help current; return $? }
+
+    if [[ -z $ZEM_LOADED_PROFILES ]]; then
+        echo "${ZEM_MSGS[current_empty]}"
+        echo "${ZEM_MSGS[current_empty_hint]}"
+        return 0
+    fi
+
+    local -a profiles
+    profiles=(${(s: :)ZEM_LOADED_PROFILES})
+
+    echo "${ZEM_MSGS[current_header]}"
+    local profile
+    for profile in "${profiles[@]}"; do
+        echo "  • $profile"
+    done
+
+    return 0
+}

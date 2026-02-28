@@ -4,12 +4,28 @@
     emulate -L zsh
 
     local command=$1
+    local _zh=0
+    [[ ${ZEM_LANGUAGE:-en} == zh ]] && _zh=1
 
     if [[ -n $command ]]; then
         # Show help for specific command
         case $command in
             add)
-                cat <<'EOF'
+                if (( _zh )); then cat <<'EOF'
+用法：zem add <profile> <key> <value>
+
+向 profile 添加环境变量。
+
+参数：
+  profile    Profile 名称
+  key        变量名（必须是合法的 shell 标识符）
+  value      变量值
+
+示例：
+  zem add work API_KEY "sk-123456"
+  zem add dev DATABASE_URL "postgres://localhost/mydb"
+EOF
+                else cat <<'EOF'
 Usage: zem add <profile> <key> <value>
 
 Add an environment variable to a profile.
@@ -23,9 +39,28 @@ Example:
   zem add work API_KEY "sk-123456"
   zem add dev DATABASE_URL "postgres://localhost/mydb"
 EOF
-                ;;
+                fi ;;
             load)
-                cat <<'EOF'
+                if (( _zh )); then cat <<'EOF'
+用法：zem load <profile> [<profile2> ...] [--default]
+
+将一个或多个 profile 加载到当前 shell session。
+
+参数：
+  profile      要加载的 profile 名称
+  --default    将已加载的 profile 设为新 shell 的默认值
+
+示例：
+  zem load work
+  zem load work personal --default
+  zem load dev staging prod
+
+说明：
+  设置 ZEM_CONFIRM_LOAD=1 可在加载前启用确认提示。
+  使用 'zem default' 管理默认 profile 设置。
+  某个 profile 加载失败不影响其余 profile 的处理。
+EOF
+                else cat <<'EOF'
 Usage: zem load <profile> [<profile2> ...] [--default]
 
 Load one or more profiles into the current shell session.
@@ -44,9 +79,22 @@ Note:
   Use 'zem default' to manage default profile settings.
   If a profile fails to load, remaining profiles will still be processed.
 EOF
-                ;;
+                fi ;;
             unload)
-                cat <<'EOF'
+                if (( _zh )); then cat <<'EOF'
+用法：zem unload <profile> [<profile2> ...]
+
+从当前 shell session 卸载一个或多个 profile。
+这将 unset profile 中定义的所有环境变量。
+
+参数：
+  profile    要卸载的 profile 名称
+
+示例：
+  zem unload work
+  zem unload work personal
+EOF
+                else cat <<'EOF'
 Usage: zem unload <profile> [<profile2> ...]
 
 Unload one or more profiles from the current shell session.
@@ -59,9 +107,20 @@ Examples:
   zem unload work
   zem unload work personal
 EOF
-                ;;
+                fi ;;
             list|ls)
-                cat <<'EOF'
+                if (( _zh )); then cat <<'EOF'
+用法：zem list
+
+列出所有可用的 profile。
+
+别名：ls
+
+示例：
+  zem list
+  zem ls
+EOF
+                else cat <<'EOF'
 Usage: zem list
 
 List all available profiles.
@@ -72,9 +131,22 @@ Example:
   zem list
   zem ls
 EOF
-                ;;
+                fi ;;
             rm|remove|delete)
-                cat <<'EOF'
+                if (( _zh )); then cat <<'EOF'
+用法：zem rm <profile>
+
+永久删除一个 profile。
+
+参数：
+  profile    要删除的 profile 名称
+
+别名：remove, delete
+
+示例：
+  zem rm old-project
+EOF
+                else cat <<'EOF'
 Usage: zem rm <profile>
 
 Remove a profile permanently.
@@ -87,9 +159,21 @@ Aliases: remove, delete
 Example:
   zem rm old-project
 EOF
-                ;;
+                fi ;;
             edit)
-                cat <<'EOF'
+                if (( _zh )); then cat <<'EOF'
+用法：zem edit <profile>
+
+使用默认编辑器（$EDITOR）编辑 profile。
+如果 profile 不存在，将提示创建。
+
+参数：
+  profile    要编辑的 profile 名称
+
+示例：
+  zem edit work
+EOF
+                else cat <<'EOF'
 Usage: zem edit <profile>
 
 Edit a profile with your default editor ($EDITOR).
@@ -101,9 +185,22 @@ Arguments:
 Example:
   zem edit work
 EOF
-                ;;
+                fi ;;
             show|cat|view)
-                cat <<'EOF'
+                if (( _zh )); then cat <<'EOF'
+用法：zem show <profile>
+
+显示 profile 的内容。
+
+参数：
+  profile    要显示的 profile 名称
+
+别名：cat, view
+
+示例：
+  zem show work
+EOF
+                else cat <<'EOF'
 Usage: zem show <profile>
 
 Display the contents of a profile.
@@ -116,9 +213,22 @@ Aliases: cat, view
 Example:
   zem show work
 EOF
-                ;;
+                fi ;;
             export)
-                cat <<'EOF'
+                if (( _zh )); then cat <<'EOF'
+用法：zem export <profile> [输出文件]
+
+将 profile 导出到文件。
+
+参数：
+  profile       要导出的 profile 名称
+  输出文件      输出文件路径（默认：<profile>.env）
+
+示例：
+  zem export work
+  zem export work ~/backup/work.env
+EOF
+                else cat <<'EOF'
 Usage: zem export <profile> [output-file]
 
 Export a profile to a file.
@@ -131,9 +241,22 @@ Example:
   zem export work
   zem export work ~/backup/work.env
 EOF
-                ;;
+                fi ;;
             import)
-                cat <<'EOF'
+                if (( _zh )); then cat <<'EOF'
+用法：zem import <file> <profile>
+
+将文件导入为 profile。
+
+参数：
+  file       要导入的文件路径
+  profile    新 profile 的名称
+
+示例：
+  zem import ~/backup/work.env work
+  zem import .env.example dev
+EOF
+                else cat <<'EOF'
 Usage: zem import <file> <profile>
 
 Import a file as a profile.
@@ -146,9 +269,88 @@ Example:
   zem import ~/backup/work.env work
   zem import .env.example dev
 EOF
-                ;;
+                fi ;;
+            current)
+                if (( _zh )); then cat <<'EOF'
+用法：zem current
+
+显示当前 shell session 中已加载的所有 profile。
+
+示例：
+  zem current
+EOF
+                else cat <<'EOF'
+Usage: zem current
+
+Show all profiles currently loaded in this shell session.
+
+Example:
+  zem current
+EOF
+                fi ;;
+            config)
+                if (( _zh )); then cat <<'EOF'
+用法：zem config [get <key>|set <key> <value>]
+
+管理 zem 配置。
+
+子命令：
+  （无参数）          显示所有当前配置
+  get <key>          获取配置项的值
+  set <key> <value>  设置配置项的值
+
+可用配置项：
+  language    显示语言，可选值：en（英文）、zh（中文），默认：en
+
+示例：
+  zem config                     # 显示所有配置
+  zem config get language        # 获取当前语言设置
+  zem config set language zh     # 切换为中文
+  zem config set language en     # 切换为英文
+EOF
+                else cat <<'EOF'
+Usage: zem config [get <key>|set <key> <value>]
+
+Manage zem configuration.
+
+Subcommands:
+  (no args)           Show all current configuration
+  get <key>           Get the value of a config key
+  set <key> <value>   Set the value of a config key
+
+Available keys:
+  language    Display language: en (English) or zh (Chinese), default: en
+
+Examples:
+  zem config                     # Show all configuration
+  zem config get language        # Get current language setting
+  zem config set language zh     # Switch to Chinese
+  zem config set language en     # Switch to English
+EOF
+                fi ;;
             default)
-                cat <<'EOF'
+                if (( _zh )); then cat <<'EOF'
+用法：zem default [<profile> [<profile2> ...]]
+   或：zem default --unset
+
+管理新 shell 自动加载的默认 profile。
+
+参数：
+  profile    要设为默认的 profile 名称（可选）
+  --unset    取消默认 profile 设置
+
+示例：
+  zem default                    # 显示当前默认 profile
+  zem default work               # 将 'work' 设为默认 profile
+  zem default work personal      # 设置多个默认 profile
+  zem default --unset            # 取消默认 profile 设置
+
+说明：
+  新 shell 启动时会自动加载默认 profile。
+  使用 'zem load <profile> --default' 可一步完成加载并设为默认。
+  多个 profile 按指定顺序加载。
+EOF
+                else cat <<'EOF'
 Usage: zem default [<profile> [<profile2> ...]]
    or: zem default --unset
 
@@ -169,7 +371,7 @@ Note:
   Use 'zem load <profile> --default' to load and set default in one command.
   Multiple profiles are loaded in the order specified.
 EOF
-                ;;
+                fi ;;
             *)
                 echo "❌ Unknown command: $command"
                 echo "Run 'zem help' to see all available commands."
@@ -178,7 +380,48 @@ EOF
         esac
     else
         # Show general help
-        cat <<'EOF'
+        if (( _zh )); then cat <<'EOF'
+🌟 Zsh 环境管理器 (zem)
+
+为不同项目和场景管理环境变量 profile。
+
+用法：
+  zem <命令> [参数]
+
+命令：
+  add <profile> <key> <value>       向 profile 添加环境变量
+  load <profile> [...] [--default]  将 profile 加载到当前 session
+  unload <profile> [...]            从当前 session 卸载 profile
+  list                              列出所有 profile
+  rm <profile>                      删除 profile
+  edit <profile>                    用 $EDITOR 编辑 profile
+  show <profile>                    显示 profile 内容
+  export <profile> [file]           将 profile 导出到文件
+  import <file> <profile>           将文件导入为 profile
+  current                           显示当前 session 已加载的 profile
+  config [get|set ...]              管理 zem 配置
+  default [<profile> ...]           管理默认 profile
+  help [command]                    显示帮助信息
+
+示例：
+  zem add work API_KEY "sk-123456"
+  zem load work personal --default
+  zem config set language zh
+  zem list
+  zem show work
+  zem unload work personal
+
+配置：
+  Profile 存储路径：${XDG_CONFIG_HOME:-$HOME/.config}/zem/profiles/
+  配置文件路径：    ${XDG_CONFIG_HOME:-$HOME/.config}/zem/config
+
+环境变量：
+  ZEM_CONFIRM_LOAD    设为 1 可在加载 profile 前启用确认提示
+
+查看特定命令的帮助：
+  zem help <command>
+EOF
+        else cat <<'EOF'
 🌟 Zsh Environment Manager (zem)
 
 Manage environment variable profiles for different projects and contexts.
@@ -196,13 +439,15 @@ Commands:
   show <profile>                    Display profile content
   export <profile> [file]           Export profile to file
   import <file> <profile>           Import file as profile
+  current                           Show loaded profiles in current session
+  config [get|set ...]              Manage zem configuration
   default [<profile> ...]           Manage default profile(s)
   help [command]                    Show help message
 
 Examples:
   zem add work API_KEY "sk-123456"
   zem load work personal --default
-  zem default work personal
+  zem config set language zh
   zem list
   zem show work
   zem unload work personal
@@ -217,6 +462,7 @@ Environment Variables:
 For more information on a specific command:
   zem help <command>
 EOF
+        fi
     fi
 
     return 0

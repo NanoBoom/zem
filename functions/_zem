@@ -22,6 +22,8 @@ _zem() {
         'view:Display profile content (alias)'
         'export:Export profile to file'
         'import:Import file as profile'
+        'current:Show currently loaded profiles'
+        'config:Manage zem configuration'
         'default:Manage default profile'
         'help:Show help message'
     )
@@ -88,12 +90,33 @@ _zem() {
                         4) _message 'profile name' ;;
                     esac
                     ;;
+                config)
+                    case $CURRENT in
+                        3)
+                            local -a config_cmds
+                            config_cmds=('get:Get a configuration value' 'set:Set a configuration value')
+                            _describe 'subcommand' config_cmds
+                            ;;
+                        4)
+                            local -a config_keys
+                            config_keys=('language:Display language (en or zh)')
+                            _describe 'key' config_keys
+                            ;;
+                        5)
+                            if [[ $words[3] == set && $words[4] == language ]]; then
+                                local -a lang_vals
+                                lang_vals=('en:English' 'zh:Chinese')
+                                _describe 'value' lang_vals
+                            fi
+                            ;;
+                    esac
+                    ;;
                 help)
                     if [[ $CURRENT == 3 ]]; then
                         local -a help_commands
                         help_commands=(
                             'add' 'load' 'unload' 'list' 'ls' 'rm' 'remove' 'delete'
-                            'edit' 'show' 'cat' 'view' 'export' 'import' 'default'
+                            'edit' 'show' 'cat' 'view' 'export' 'import' 'current' 'config' 'default'
                         )
                         _describe 'command' help_commands
                     fi

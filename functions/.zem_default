@@ -11,14 +11,16 @@
     local profile_dir="${XDG_CONFIG_HOME:-$HOME/.config}/zem/profiles"
     local -a profiles
 
+    [[ $1 == (-h|--help|help) ]] && { .zem_help default; return $? }
+
     # Handle --unset flag
     if [[ $1 == "--unset" ]]; then
         .zem_config_set default_profile "" || {
-            echo "❌ Failed to unset default profile."
+            echo "${ZEM_MSGS[default_unset_failed]}"
             return 1
         }
-        echo "✅ Default profile unset."
-        echo "   New shells will not auto-load any profile."
+        echo "${ZEM_MSGS[default_unset_success]}"
+        echo "${ZEM_MSGS[default_unset_hint]}"
         return 0
     fi
 
@@ -26,14 +28,14 @@
     if (( $# == 0 )); then
         local current=$(.zem_config_get default_profile)
         if [[ -z $current ]]; then
-            echo "📂 No default profile set."
-            echo "Usage: zem default <profile> [<profile2> ...]"
+            echo "${ZEM_MSGS[default_none]}"
+            echo "${ZEM_MSGS[default_usage]}"
         else
-            echo "📌 Default profile(s): $current"
+            printf "${ZEM_MSGS[default_current]}\n" "$current"
             local p
             for p in ${(s: :)current}; do
                 if [[ ! -f $profile_dir/$p ]]; then
-                    echo "⚠️  Warning: Profile '$p' does not exist."
+                    printf "${ZEM_MSGS[default_warn_missing]}\n" "$p"
                 fi
             done
         fi
@@ -47,24 +49,24 @@
     for profile in "${profiles[@]}"; do
         .zem_validate_profile_name "$profile" || return 1
         if [[ ! -f $profile_dir/$profile ]]; then
-            echo "❌ Profile '$profile' does not exist."
-            echo "Run 'zem list' to see available profiles."
+            printf "${ZEM_MSGS[common_not_exist]}\n" "$profile"
+            echo "${ZEM_MSGS[common_list_hint]}"
             return 1
         fi
     done
 
     # Set default profile(s)
     .zem_config_set default_profile "${profiles[*]}" || {
-        echo "❌ Failed to set default profile."
+        echo "${ZEM_MSGS[default_set_failed]}"
         return 1
     }
 
     if (( ${#profiles} == 1 )); then
-        echo "✅ Default profile set to '${profiles[1]}'"
-        echo "   New shells will automatically load this profile."
+        printf "${ZEM_MSGS[default_set_single]}\n" "${profiles[1]}"
+        echo "${ZEM_MSGS[default_set_hint_single]}"
     else
-        echo "✅ Default profiles set to '${profiles[*]}'"
-        echo "   New shells will automatically load these profiles."
+        printf "${ZEM_MSGS[default_set_multi]}\n" "${profiles[*]}"
+        echo "${ZEM_MSGS[default_set_hint_multi]}"
     fi
     return 0
 }

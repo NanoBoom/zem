@@ -11,10 +11,12 @@
     local profile=$1 key=$2 value=$3
     local profile_dir="${XDG_CONFIG_HOME:-$HOME/.config}/zem/profiles"
 
+    [[ $1 == (-h|--help|help) ]] && { .zem_help add; return $? }
+
     # Validate arguments
     if [[ -z $profile ]]; then
-        echo "❌ Missing profile name."
-        echo "Usage: zem add <profile> <key> <value>"
+        echo "${ZEM_MSGS[common_missing_profile]}"
+        echo "${ZEM_MSGS[add_usage]}"
         return 1
     fi
 
@@ -22,29 +24,28 @@
     .zem_validate_profile_name "$profile" || return 1
 
     if [[ -z $key ]]; then
-        echo "❌ Missing variable name."
-        echo "Usage: zem add <profile> <key> <value>"
+        echo "${ZEM_MSGS[add_missing_key]}"
+        echo "${ZEM_MSGS[add_usage]}"
         return 1
     fi
 
     if [[ -z $value ]]; then
-        echo "❌ Missing variable value."
-        echo "Usage: zem add <profile> <key> <value>"
+        echo "${ZEM_MSGS[add_missing_value]}"
+        echo "${ZEM_MSGS[add_usage]}"
         return 1
     fi
 
     # Validate key format (must be valid shell variable name)
     if [[ ! $key =~ ^[A-Za-z_][A-Za-z0-9_]*$ ]]; then
-        echo "❌ Invalid variable name: $key"
-        echo "Variable names must start with a letter or underscore,"
-        echo "and contain only letters, numbers, and underscores."
+        printf "${ZEM_MSGS[add_invalid_key]}\n" "$key"
+        echo "${ZEM_MSGS[add_invalid_key_hint]}"
         return 1
     fi
 
     # Check if profile directory exists
     if [[ ! -d $profile_dir ]]; then
-        echo "❌ Profile directory does not exist: $profile_dir"
-        echo "Run 'zem list' to initialize the directory."
+        printf "${ZEM_MSGS[add_no_dir]}\n" "$profile_dir"
+        echo "${ZEM_MSGS[add_no_dir_hint]}"
         return 1
     fi
 
@@ -54,10 +55,10 @@
 
     # Append to profile file
     echo "export $key=\"$escaped_value\"" >> "$profile_dir/$profile" || {
-        echo "❌ Failed to write to profile: $profile"
+        printf "${ZEM_MSGS[add_failed]}\n" "$profile"
         return 1
     }
 
-    echo "✅ Added $key to profile '$profile'"
+    printf "${ZEM_MSGS[add_success]}\n" "$key" "$profile"
     return 0
 }

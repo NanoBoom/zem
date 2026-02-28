@@ -12,31 +12,34 @@
     local profile=$2
     local profile_dir="${XDG_CONFIG_HOME:-$HOME/.config}/zem/profiles"
 
+    [[ $1 == (-h|--help|help) ]] && { .zem_help import; return $? }
+
     # Validate arguments
     if [[ -z $input_file ]]; then
-        echo "❌ Missing input file."
-        echo "Usage: zem import <file> <profile>"
+        echo "${ZEM_MSGS[import_missing_file]}"
+        echo "${ZEM_MSGS[import_usage]}"
         return 1
     fi
 
     if [[ -z $profile ]]; then
-        echo "❌ Missing profile name."
-        echo "Usage: zem import <file> <profile>"
+        echo "${ZEM_MSGS[common_missing_profile]}"
+        echo "${ZEM_MSGS[import_usage]}"
         return 1
     fi
 
     # Check if input file exists
     if [[ ! -f $input_file ]]; then
-        echo "❌ File not found: $input_file"
+        printf "${ZEM_MSGS[import_not_found]}\n" "$input_file"
         return 1
     fi
 
     # Validate file is a text file
     if ! file "$input_file" 2>/dev/null | grep -qi "text"; then
-        echo "⚠️  Warning: File may not be a text file: $input_file"
-        read "?Import anyway? [y/N] " response
+        printf "${ZEM_MSGS[import_not_text]}\n" "$input_file"
+        local prompt="${ZEM_MSGS[import_anyway]}"
+        read "?${prompt}" response
         if [[ ! $response =~ ^[yY]$ ]]; then
-            echo "Cancelled."
+            echo "${ZEM_MSGS[common_cancelled]}"
             return 0
         fi
     fi
@@ -45,20 +48,21 @@
 
     # Check if profile already exists
     if [[ -f $profile_file ]]; then
-        echo "⚠️  Profile '$profile' already exists."
-        read "?Overwrite? [y/N] " response
+        printf "${ZEM_MSGS[import_exists]}\n" "$profile"
+        local prompt="${ZEM_MSGS[import_overwrite]}"
+        read "?${prompt}" response
         if [[ ! $response =~ ^[yY]$ ]]; then
-            echo "Cancelled."
+            echo "${ZEM_MSGS[common_cancelled]}"
             return 0
         fi
     fi
 
     # Copy input file to profile
     cp "$input_file" "$profile_file" || {
-        echo "❌ Failed to import file to profile: $profile"
+        printf "${ZEM_MSGS[import_failed]}\n" "$profile"
         return 1
     }
 
-    echo "📥 File imported as profile '$profile'"
+    printf "${ZEM_MSGS[import_success]}\n" "$profile"
     return 0
 }

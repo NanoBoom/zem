@@ -12,19 +12,22 @@
     local profile_dir="${XDG_CONFIG_HOME:-$HOME/.config}/zem/profiles"
     local profile_file="$profile_dir/$profile"
 
+    [[ $1 == (-h|--help|help) ]] && { .zem_help edit; return $? }
+
     # Validate arguments
     if [[ -z $profile ]]; then
-        echo "❌ Missing profile name."
-        echo "Usage: zem edit <profile>"
+        echo "${ZEM_MSGS[common_missing_profile]}"
+        echo "${ZEM_MSGS[edit_usage]}"
         return 1
     fi
 
     # Check if profile exists
     if [[ ! -f $profile_file ]]; then
-        echo "⚠️  Profile '$profile' does not exist."
-        read "?Create it now? [y/N] " response
+        printf "${ZEM_MSGS[edit_not_exist]}\n" "$profile"
+        local prompt="${ZEM_MSGS[edit_create_prompt]}"
+        read "?${prompt}" response
         if [[ ! $response =~ ^[yY]$ ]]; then
-            echo "Cancelled."
+            echo "${ZEM_MSGS[common_cancelled]}"
             return 0
         fi
         # Create empty profile with header
@@ -36,7 +39,7 @@
 
 EOF
         } || {
-            echo "❌ Failed to create profile file: $profile_file"
+            printf "${ZEM_MSGS[edit_create_failed]}\n" "$profile_file"
             return 1
         }
     fi
@@ -46,10 +49,10 @@ EOF
 
     # Open editor
     "$editor" "$profile_file" || {
-        echo "❌ Failed to open editor: $editor"
+        printf "${ZEM_MSGS[edit_open_failed]}\n" "$editor"
         return 1
     }
 
-    echo "✅ Profile '$profile' saved."
+    printf "${ZEM_MSGS[edit_success]}\n" "$profile"
     return 0
 }

@@ -12,12 +12,14 @@
     local -a profiles
     local failed=0
 
+    [[ $1 == (-h|--help|help) ]] && { .zem_help unload; return $? }
+
     profiles=("$@")
 
     # Validate: at least one profile required
     if (( ${#profiles} == 0 )); then
-        echo "❌ Missing profile name."
-        echo "Usage: zem unload <profile> [<profile2> ...]"
+        echo "${ZEM_MSGS[common_missing_profile]}"
+        echo "${ZEM_MSGS[unload_usage]}"
         return 1
     fi
 
@@ -28,8 +30,8 @@
 
         # Check if profile exists
         if [[ ! -f $profile_file ]]; then
-            echo "❌ Profile '$profile' does not exist."
-            echo "   Run 'zem list' to see available profiles."
+            printf "${ZEM_MSGS[common_not_exist]}\n" "$profile"
+            echo "${ZEM_MSGS[common_list_hint]}"
             failed=1
             continue
         fi
@@ -53,7 +55,13 @@
             fi
         done < "$profile_file"
 
-        echo "🧹 Profile '$profile' unloaded successfully!"
+        printf "${ZEM_MSGS[unload_success]}\n" "$profile"
+        # Remove from ZEM_LOADED_PROFILES
+        local -a current_list
+        current_list=(${(s: :)ZEM_LOADED_PROFILES})
+        current_list=(${current_list:#$profile})
+        ZEM_LOADED_PROFILES="${current_list[*]}"
+        export ZEM_LOADED_PROFILES
     done
 
     return $failed

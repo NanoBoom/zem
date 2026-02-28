@@ -6,10 +6,12 @@
 
     local profile_dir="${XDG_CONFIG_HOME:-$HOME/.config}/zem/profiles"
 
+    [[ $1 == (-h|--help|help) ]] && { .zem_help list; return $? }
+
     # Check if profile directory exists
     if [[ ! -d $profile_dir ]]; then
-        echo "📂 No profiles found."
-        echo "Create one with: zem add <profile> <key> <value>"
+        echo "${ZEM_MSGS[list_empty]}"
+        echo "${ZEM_MSGS[list_empty_hint]}"
         return 0
     fi
 
@@ -19,12 +21,12 @@
 
     # Check if any profiles exist
     if [[ ${#profiles[@]} -eq 0 ]]; then
-        echo "📂 No profiles found."
-        echo "Create one with: zem add <profile> <key> <value>"
+        echo "${ZEM_MSGS[list_empty]}"
+        echo "${ZEM_MSGS[list_empty_hint]}"
         return 0
     fi
 
-    echo "📂 Available profiles:"
+    echo "${ZEM_MSGS[list_header]}"
     for profile in "${profiles[@]}"; do
         [[ -z $profile ]] && continue
         echo "  • $profile"

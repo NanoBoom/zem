@@ -41,6 +41,12 @@ zem() {
         import)
             .zem_import "${@:2}"
             ;;
+        current)
+            .zem_current "${@:2}"
+            ;;
+        config)
+            .zem_config "${@:2}"
+            ;;
         default)
             .zem_default "${@:2}"
             ;;

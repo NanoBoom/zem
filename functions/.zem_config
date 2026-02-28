@@ -1,0 +1,77 @@
+# Manage zem configuration
+
+.zem_config() {
+    emulate -L zsh
+    setopt extended_glob warn_create_global typeset_silent
+
+    local MATCH REPLY
+    integer MBEGIN MEND
+    local -a match mbegin mend reply
+
+    [[ $1 == (-h|--help|help) ]] && { .zem_help config; return $? }
+
+    # Show all config if no subcommand
+    if (( $# == 0 )); then
+        echo "${ZEM_MSGS[config_header]}"
+        local lang=$(.zem_config_get language)
+        printf "  language = %s\n" "${lang:-en}"
+        return 0
+    fi
+
+    local subcmd=$1
+    case $subcmd in
+        get)
+            local key=$2
+            if [[ -z $key ]]; then
+                echo "${ZEM_MSGS[config_missing_key]}"
+                return 1
+            fi
+            local value=$(.zem_config_get "$key")
+            if [[ -z $value ]]; then
+                local default_val
+                case $key in
+                    language) default_val="en" ;;
+                    *) default_val="(none)" ;;
+                esac
+                printf "${ZEM_MSGS[config_get_unset]}\n" "$default_val"
+            else
+                echo "$value"
+            fi
+            ;;
+        set)
+            local key=$2 value=$3
+            if [[ -z $key ]]; then
+                echo "${ZEM_MSGS[config_missing_key]}"
+                return 1
+            fi
+            if [[ -z $value ]]; then
+                echo "${ZEM_MSGS[config_missing_value]}"
+                return 1
+            fi
+            case $key in
+                language)
+                    if [[ $value != en && $value != zh ]]; then
+                        printf "${ZEM_MSGS[config_invalid_lang]}\n" "$value"
+                        return 1
+                    fi
+                    .zem_config_set language "$value" || return 1
+                    export ZEM_LANGUAGE="$value"
+                    .zem_i18n_load
+                    printf "${ZEM_MSGS[config_set_success]}\n" "$key" "$value"
+                    echo "${ZEM_MSGS[config_lang_reload]}"
+                    ;;
+                *)
+                    .zem_config_set "$key" "$value" || return 1
+                    printf "${ZEM_MSGS[config_set_success]}\n" "$key" "$value"
+                    ;;
+            esac
+            ;;
+        *)
+            printf "${ZEM_MSGS[config_unknown_sub]}\n" "$subcmd"
+            echo "${ZEM_MSGS[config_usage]}"
+            return 1
+            ;;
+    esac
+
+    return 0
+}

@@ -12,35 +12,38 @@
     local profile_dir="${XDG_CONFIG_HOME:-$HOME/.config}/zem/profiles"
     local profile_file="$profile_dir/$profile"
 
+    [[ $1 == (-h|--help|help) ]] && { .zem_help rm; return $? }
+
     # Validate arguments
     if [[ -z $profile ]]; then
-        echo "❌ Missing profile name."
-        echo "Usage: zem rm <profile>"
+        echo "${ZEM_MSGS[common_missing_profile]}"
+        echo "${ZEM_MSGS[rm_usage]}"
         return 1
     fi
 
     # Check if profile exists
     if [[ ! -f $profile_file ]]; then
-        echo "❌ Profile '$profile' does not exist."
-        echo "Run 'zem list' to see available profiles."
+        printf "${ZEM_MSGS[common_not_exist]}\n" "$profile"
+        echo "${ZEM_MSGS[rm_list_hint]}"
         return 1
     fi
 
     # Confirm deletion
-    echo "⚠️  Are you sure you want to delete profile '$profile'?"
-    read "?This action cannot be undone. [y/N] " response
+    printf "${ZEM_MSGS[rm_confirm]}\n" "$profile"
+    local prompt="${ZEM_MSGS[rm_confirm_hint]}"
+    read "?${prompt}" response
 
     if [[ ! $response =~ ^[yY]$ ]]; then
-        echo "Cancelled."
+        echo "${ZEM_MSGS[common_cancelled]}"
         return 0
     fi
 
     # Delete the profile
     rm -f "$profile_file" || {
-        echo "❌ Failed to delete profile: $profile"
+        printf "${ZEM_MSGS[rm_failed]}\n" "$profile"
         return 1
     }
 
-    echo "🗑️  Profile '$profile' deleted successfully."
+    printf "${ZEM_MSGS[rm_success]}\n" "$profile"
     return 0
 }
