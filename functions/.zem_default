@@ -24,6 +24,39 @@
         return 0
     fi
 
+    # Handle --remove flag
+    if [[ $1 == "--remove" ]]; then
+        shift
+        if (( $# == 0 )); then
+            echo "${ZEM_MSGS[common_missing_profile]}"
+            return 1
+        fi
+
+        local current=$(.zem_config_get default_profile)
+        local -a current_list=(${(s: :)current})
+        local -a removed_list
+        local profile
+
+        for profile in "$@"; do
+            local idx=${current_list[(Ie)$profile]}
+            if (( idx > 0 )); then
+                current_list[idx]=()
+                removed_list+=("$profile")
+            else
+                printf "${ZEM_MSGS[default_remove_not_found]}\n" "$profile"
+            fi
+        done
+
+        if (( ${#removed_list} > 0 )); then
+            .zem_config_set default_profile "${current_list[*]}" || {
+                echo "${ZEM_MSGS[default_set_failed]}"
+                return 1
+            }
+            printf "${ZEM_MSGS[default_remove_success]}\n" "${removed_list[*]}"
+        fi
+        return 0
+    fi
+
     # If no argument, show current default(s)
     if (( $# == 0 )); then
         local current=$(.zem_config_get default_profile)
@@ -55,17 +88,33 @@
         fi
     done
 
-    # Set default profile(s)
-    .zem_config_set default_profile "${profiles[*]}" || {
+    # Append to existing defaults (deduplicate)
+    local current=$(.zem_config_get default_profile)
+    local -a current_list=(${(s: :)current})
+    local -a appended_list
+
+    for profile in "${profiles[@]}"; do
+        if (( current_list[(Ie)$profile] == 0 )); then
+            current_list+=("$profile")
+            appended_list+=("$profile")
+        fi
+    done
+
+    if (( ${#appended_list} == 0 )); then
+        echo "${ZEM_MSGS[default_already_set]}"
+        return 0
+    fi
+
+    .zem_config_set default_profile "${current_list[*]}" || {
         echo "${ZEM_MSGS[default_set_failed]}"
         return 1
     }
 
-    if (( ${#profiles} == 1 )); then
-        printf "${ZEM_MSGS[default_set_single]}\n" "${profiles[1]}"
+    if (( ${#appended_list} == 1 )); then
+        printf "${ZEM_MSGS[default_append_single]}\n" "${appended_list[1]}"
         echo "${ZEM_MSGS[default_set_hint_single]}"
     else
-        printf "${ZEM_MSGS[default_set_multi]}\n" "${profiles[*]}"
+        printf "${ZEM_MSGS[default_append_multi]}\n" "${appended_list[*]}"
         echo "${ZEM_MSGS[default_set_hint_multi]}"
     fi
     return 0

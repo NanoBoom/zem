@@ -31,9 +31,6 @@ compdef _zem zem
     export ZEM_LANGUAGE="${lang:-en}"
     .zem_i18n_load
 
-    # If already set (e.g. by a parent shell), don't override loaded profiles
-    [[ -n $ZEM_LOADED_PROFILES ]] && return
-
     local default_profiles=$(.zem_config_get default_profile)
 
     if [[ -n $default_profiles ]]; then
