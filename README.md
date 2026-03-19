@@ -1,6 +1,6 @@
 # Zsh Environment Manager
 
-A modern, standards-compliant Zsh plugin for managing environment variable profiles.
+[中文版](README_zh.md) | A modern, standards-compliant Zsh plugin for managing environment variable profiles.
 
 ## Features
 
@@ -97,6 +97,26 @@ zem export work ~/backup/work.env
 zem import ~/backup/work.env work
 ```
 
+### Default Profiles (Auto-load in New Shells)
+
+```shell
+# Show current default profile list
+zem default
+
+# Append one or more profiles to defaults (deduplicated)
+zem default work
+zem default work personal
+
+# Remove one or more profiles from defaults
+zem default --remove work
+
+# Clear all default profiles
+zem default --unset
+```
+
+Default profiles are automatically loaded when you start a new shell, including shells that inherit `ZEM_LOADED_PROFILES` from a parent session (for example, new tmux panes).
+To replace the entire default list, run `zem default --unset` first, then add the new profiles.
+
 ### Help
 
 ```shell
@@ -153,6 +173,7 @@ export DEBUG="true"
 | `zem show <profile>` | Display profile content |
 | `zem export <profile> [file]` | Export profile to file |
 | `zem import <file> <profile>` | Import file as profile |
+| `zem default [<profile> ...]` | Append/manage default profile(s) for new shells |
 | `zem help [command]` | Show help message |
 
 ### Command Aliases
