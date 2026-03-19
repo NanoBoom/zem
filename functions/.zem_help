@@ -42,17 +42,16 @@ EOF
                 fi ;;
             load)
                 if (( _zh )); then cat <<'EOF'
-用法：zem load <profile> [<profile2> ...] [--default]
+用法：zem load <profile> [<profile2> ...]
 
 将一个或多个 profile 加载到当前 shell session。
 
 参数：
-  profile      要加载的 profile 名称
-  --default    将已加载的 profile 设为新 shell 的默认值
+  profile    要加载的 profile 名称
 
 示例：
   zem load work
-  zem load work personal --default
+  zem load work personal
   zem load dev staging prod
 
 说明：
@@ -61,17 +60,16 @@ EOF
   某个 profile 加载失败不影响其余 profile 的处理。
 EOF
                 else cat <<'EOF'
-Usage: zem load <profile> [<profile2> ...] [--default]
+Usage: zem load <profile> [<profile2> ...]
 
 Load one or more profiles into the current shell session.
 
 Arguments:
-  profile      Name of the profile(s) to load
-  --default    Set loaded profiles as default for new shells
+  profile    Name of the profile(s) to load
 
 Examples:
   zem load work
-  zem load work personal --default
+  zem load work personal
   zem load dev staging prod
 
 Note:
@@ -330,46 +328,52 @@ EOF
                 fi ;;
             default)
                 if (( _zh )); then cat <<'EOF'
-用法：zem default [<profile> [<profile2> ...]]
+用法：zem default [<profile> ...]
+   或：zem default --remove <profile> [...]
    或：zem default --unset
 
 管理新 shell 自动加载的默认 profile。
 
 参数：
-  profile    要设为默认的 profile 名称（可选）
-  --unset    取消默认 profile 设置
+  profile           追加到默认列表的 profile 名称（已存在则忽略）
+  --remove <p>      从默认列表中移除指定 profile
+  --unset           清空全部默认 profile 设置
 
 示例：
   zem default                    # 显示当前默认 profile
-  zem default work               # 将 'work' 设为默认 profile
-  zem default work personal      # 设置多个默认 profile
-  zem default --unset            # 取消默认 profile 设置
+  zem default work               # 追加 'work' 到默认列表
+  zem default work personal      # 追加多个 profile
+  zem default --remove work      # 从默认列表中移除 'work'
+  zem default --unset            # 清空默认 profile 设置
 
 说明：
   新 shell 启动时会自动加载默认 profile。
-  使用 'zem load <profile> --default' 可一步完成加载并设为默认。
-  多个 profile 按指定顺序加载。
+  多个 profile 按列表顺序加载。
+  使用 'zem default' 追加，用 '--unset' 清空后重新设置可替换整个列表。
 EOF
                 else cat <<'EOF'
-Usage: zem default [<profile> [<profile2> ...]]
+Usage: zem default [<profile> ...]
+   or: zem default --remove <profile> [...]
    or: zem default --unset
 
 Manage the default profile(s) that load automatically in new shells.
 
 Arguments:
-  profile    Name of the profile(s) to set as default (optional)
-  --unset    Remove the default profile setting
+  profile           Append profile(s) to the default list (duplicates ignored)
+  --remove <p>      Remove profile(s) from the default list
+  --unset           Clear all default profile settings
 
 Examples:
   zem default                    # Show current default profile(s)
-  zem default work               # Set 'work' as default profile
-  zem default work personal      # Set multiple default profiles
-  zem default --unset            # Remove default profile setting
+  zem default work               # Append 'work' to defaults
+  zem default work personal      # Append multiple profiles
+  zem default --remove work      # Remove 'work' from defaults
+  zem default --unset            # Clear all default profiles
 
 Note:
   Default profiles are automatically loaded when you start a new shell.
-  Use 'zem load <profile> --default' to load and set default in one command.
-  Multiple profiles are loaded in the order specified.
+  Multiple profiles are loaded in the order listed.
+  To replace the entire list: --unset first, then set new defaults.
 EOF
                 fi ;;
             *)
@@ -389,23 +393,23 @@ EOF
   zem <命令> [参数]
 
 命令：
-  add <profile> <key> <value>       向 profile 添加环境变量
-  load <profile> [...] [--default]  将 profile 加载到当前 session
-  unload <profile> [...]            从当前 session 卸载 profile
-  list                              列出所有 profile
-  rm <profile>                      删除 profile
-  edit <profile>                    用 $EDITOR 编辑 profile
-  show <profile>                    显示 profile 内容
-  export <profile> [file]           将 profile 导出到文件
-  import <file> <profile>           将文件导入为 profile
-  current                           显示当前 session 已加载的 profile
-  config [get|set ...]              管理 zem 配置
-  default [<profile> ...]           管理默认 profile
-  help [command]                    显示帮助信息
+  add <profile> <key> <value>   向 profile 添加环境变量
+  load <profile> [...]          将 profile 加载到当前 session
+  unload <profile> [...]        从当前 session 卸载 profile
+  list                          列出所有 profile
+  rm <profile>                  删除 profile
+  edit <profile>                用 $EDITOR 编辑 profile
+  show <profile>                显示 profile 内容
+  export <profile> [file]       将 profile 导出到文件
+  import <file> <profile>       将文件导入为 profile
+  current                       显示当前 session 已加载的 profile
+  config [get|set ...]          管理 zem 配置
+  default [<profile> ...]       追加/管理默认 profile
+  help [command]                显示帮助信息
 
 示例：
   zem add work API_KEY "sk-123456"
-  zem load work personal --default
+  zem load work personal
   zem config set language zh
   zem list
   zem show work
@@ -430,23 +434,23 @@ Usage:
   zem <command> [arguments]
 
 Commands:
-  add <profile> <key> <value>       Add environment variable to profile
-  load <profile> [...] [--default]  Load profile(s) into current session
-  unload <profile> [...]            Unload profile(s) from current session
-  list                              List all profiles
-  rm <profile>                      Remove profile
-  edit <profile>                    Edit profile with $EDITOR
-  show <profile>                    Display profile content
-  export <profile> [file]           Export profile to file
-  import <file> <profile>           Import file as profile
-  current                           Show loaded profiles in current session
-  config [get|set ...]              Manage zem configuration
-  default [<profile> ...]           Manage default profile(s)
-  help [command]                    Show help message
+  add <profile> <key> <value>   Add environment variable to profile
+  load <profile> [...]          Load profile(s) into current session
+  unload <profile> [...]        Unload profile(s) from current session
+  list                          List all profiles
+  rm <profile>                  Remove profile
+  edit <profile>                Edit profile with $EDITOR
+  show <profile>                Display profile content
+  export <profile> [file]       Export profile to file
+  import <file> <profile>       Import file as profile
+  current                       Show loaded profiles in current session
+  config [get|set ...]          Manage zem configuration
+  default [<profile> ...]       Append/manage default profile(s)
+  help [command]                Show help message
 
 Examples:
   zem add work API_KEY "sk-123456"
-  zem load work personal --default
+  zem load work personal
   zem config set language zh
   zem list
   zem show work

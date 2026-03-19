@@ -28,15 +28,12 @@
             add_success             "✅ 已将 %s 添加到 profile '%s'"
 
             # load
-            load_usage              "用法：zem load <profile> [<profile2> ...] [--default]"
+            load_usage              "用法：zem load <profile> [<profile2> ...]"
             load_warn_exec          "⚠️  警告：将执行来自 '%s' 的代码"
             load_warn_file          "   文件：%s"
             load_confirm            "继续？[y/N] "
             load_success            "🚀 Profile '%s' 加载成功！"
             load_failed             "❌ 加载 profile '%s' 失败。"
-            load_failed_default     "❌ 保存默认 profile 失败。"
-            load_set_default_single "✅ 已将 '%s' 设为默认 profile。"
-            load_set_default_multi  "✅ 已将 '%s' 设为默认 profile。"
 
             # unload
             unload_usage            "用法：zem unload <profile> [<profile2> ...]"
@@ -87,18 +84,21 @@
             import_success          "📥 文件已导入为 profile '%s'"
 
             # default
-            default_unset_failed    "❌ 取消设置默认 profile 失败。"
-            default_unset_success   "✅ 默认 profile 已取消设置。"
-            default_unset_hint      "   新 shell 不会自动加载任何 profile。"
-            default_none            "📂 未设置默认 profile。"
-            default_usage           "用法：zem default <profile> [<profile2> ...]"
-            default_current         "📌 默认 profile：%s"
-            default_warn_missing    "⚠️  警告：Profile '%s' 不存在。"
-            default_set_failed      "❌ 设置默认 profile 失败。"
-            default_set_single      "✅ 默认 profile 已设为 '%s'"
-            default_set_hint_single "   新 shell 将自动加载此 profile。"
-            default_set_multi       "✅ 默认 profile 已设为 '%s'"
-            default_set_hint_multi  "   新 shell 将自动加载这些 profile。"
+            default_unset_failed      "❌ 取消设置默认 profile 失败。"
+            default_unset_success     "✅ 默认 profile 已取消设置。"
+            default_unset_hint        "   新 shell 不会自动加载任何 profile。"
+            default_none              "📂 未设置默认 profile。"
+            default_usage             "用法：zem default [<profile> ...] [--remove <profile> ...] [--unset]"
+            default_current           "📌 默认 profile：%s"
+            default_warn_missing      "⚠️  警告：Profile '%s' 不存在。"
+            default_set_failed        "❌ 设置默认 profile 失败。"
+            default_append_single     "✅ 已将 '%s' 追加到默认 profile。"
+            default_append_multi      "✅ 已将 '%s' 追加到默认 profile。"
+            default_set_hint_single   "   新 shell 将自动加载此 profile。"
+            default_set_hint_multi    "   新 shell 将自动加载这些 profile。"
+            default_already_set       "ℹ️  所有指定的 profile 已在默认列表中。"
+            default_remove_success    "✅ 已从默认列表中移除 '%s'。"
+            default_remove_not_found  "⚠️  Profile '%s' 不在默认列表中。"
 
             # current
             current_empty           "📂 当前未加载任何 profile。"
@@ -141,15 +141,12 @@
             add_success             "✅ Added %s to profile '%s'"
 
             # load
-            load_usage              "Usage: zem load <profile> [<profile2> ...] [--default]"
+            load_usage              "Usage: zem load <profile> [<profile2> ...]"
             load_warn_exec          "⚠️  Warning: This will execute code from '%s'"
             load_warn_file          "   File: %s"
             load_confirm            "Continue? [y/N] "
             load_success            "🚀 Profile '%s' loaded successfully!"
             load_failed             "❌ Failed to load profile: %s"
-            load_failed_default     "❌ Failed to save default profile(s)."
-            load_set_default_single "✅ Set '%s' as default profile."
-            load_set_default_multi  "✅ Set '%s' as default profiles."
 
             # unload
             unload_usage            "Usage: zem unload <profile> [<profile2> ...]"
@@ -200,18 +197,21 @@
             import_success          "📥 File imported as profile '%s'"
 
             # default
-            default_unset_failed    "❌ Failed to unset default profile."
-            default_unset_success   "✅ Default profile unset."
-            default_unset_hint      "   New shells will not auto-load any profile."
-            default_none            "📂 No default profile set."
-            default_usage           "Usage: zem default <profile> [<profile2> ...]"
-            default_current         "📌 Default profile(s): %s"
-            default_warn_missing    "⚠️  Warning: Profile '%s' does not exist."
-            default_set_failed      "❌ Failed to set default profile."
-            default_set_single      "✅ Default profile set to '%s'"
-            default_set_hint_single "   New shells will automatically load this profile."
-            default_set_multi       "✅ Default profiles set to '%s'"
-            default_set_hint_multi  "   New shells will automatically load these profiles."
+            default_unset_failed      "❌ Failed to unset default profile."
+            default_unset_success     "✅ Default profile unset."
+            default_unset_hint        "   New shells will not auto-load any profile."
+            default_none              "📂 No default profile set."
+            default_usage             "Usage: zem default [<profile> ...] [--remove <profile> ...] [--unset]"
+            default_current           "📌 Default profile(s): %s"
+            default_warn_missing      "⚠️  Warning: Profile '%s' does not exist."
+            default_set_failed        "❌ Failed to set default profile."
+            default_append_single     "✅ Appended '%s' to default profiles."
+            default_append_multi      "✅ Appended '%s' to default profiles."
+            default_set_hint_single   "   New shells will automatically load this profile."
+            default_set_hint_multi    "   New shells will automatically load these profiles."
+            default_already_set       "ℹ️  All specified profiles are already in the default list."
+            default_remove_success    "✅ Removed '%s' from default profiles."
+            default_remove_not_found  "⚠️  Profile '%s' is not in the default list."
 
             # current
             current_empty           "📂 No profiles loaded."

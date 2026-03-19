@@ -8,9 +8,8 @@
     integer MBEGIN MEND
     local -a match mbegin mend reply
 
-    local set_default=0
     local profile_dir="${XDG_CONFIG_HOME:-$HOME/.config}/zem/profiles"
-    local -a profiles loaded_profiles current_list
+    local -a profiles current_list
     local failed=0
 
     [[ $1 == (-h|--help|help) ]] && { .zem_help load; return $? }
@@ -18,15 +17,7 @@
     # Parse current loaded profiles once before the loop
     current_list=(${(s: :)ZEM_LOADED_PROFILES})
 
-    # Parse arguments: --default flag can appear anywhere
-    local arg
-    for arg in "$@"; do
-        if [[ $arg == "--default" ]]; then
-            set_default=1
-        else
-            profiles+=("$arg")
-        fi
-    done
+    profiles=("$@")
 
     # Validate: at least one profile required
     if (( ${#profiles} == 0 )); then
@@ -69,7 +60,6 @@
         # Source the profile
         if source "$profile_file"; then
             printf "${ZEM_MSGS[load_success]}\n" "$profile"
-            loaded_profiles+=("$profile")
             # Track in current_list (avoid duplicates)
             if (( current_list[(Ie)$profile] == 0 )); then
                 current_list+=("$profile")
@@ -82,19 +72,6 @@
 
     # Write back ZEM_LOADED_PROFILES once after all loads
     export ZEM_LOADED_PROFILES="${current_list[*]}"
-
-    # Set as default if requested (only successfully loaded profiles)
-    if (( set_default )) && (( ${#loaded_profiles} > 0 )); then
-        .zem_config_set default_profile "${loaded_profiles[*]}" || {
-            echo "${ZEM_MSGS[load_failed_default]}"
-            return 1
-        }
-        if (( ${#loaded_profiles} == 1 )); then
-            printf "${ZEM_MSGS[load_set_default_single]}\n" "${loaded_profiles[1]}"
-        else
-            printf "${ZEM_MSGS[load_set_default_multi]}\n" "${loaded_profiles[*]}"
-        fi
-    fi
 
     return $failed
 }
